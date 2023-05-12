@@ -1,0 +1,38 @@
+{
+  "name": "library_api_rest",
+  "version": "1.0.0",
+  "description": "a library api rest, with a colection of librarys, books and users. Where you ca CRUD ",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./app.js",
+    "dev": "nodemon ./app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Huilensolis/library_API_REST.git"
+  },
+  "keywords": [
+    "API",
+    "api",
+    "rest",
+    "REST",
+    "library",
+    "LIBRARY",
+    "libraryAPI",
+    "library_api",
+    "API_REST",
+    "apiRest"
+  ],
+  "author": "Huilen Solis <solishuilencontact@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Huilensolis/library_API_REST/issues"
+  },
+  "homepage": "https://github.com/Huilensolis/library_API_REST#readme",
+  "dependencies": {
+    "express": "4.18.2",
+    "nodemon": "2.0.22",
+    "sequelize": "6.31.1",
+    "sqlite3": "5.1.6"
+  }
+}
