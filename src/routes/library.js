@@ -6,7 +6,7 @@ const { Library } = require('../models')
 
 libraryRouter.get('/', (req, res) => {
     try{
-        let findLibreries = Library.findAll()
+        Library.findAll()
         .then(libraries => {
             console.log(JSON.stringify(libraries, null, 2));
             res
@@ -22,6 +22,34 @@ libraryRouter.get('/', (req, res) => {
         .end()
     }
 });
+
+libraryRouter.get('/:id', (req, res) => {
+    let id = req.params.id;
+    try{
+
+        Library.findByPk(id)
+        .then(library => {
+            if(library === null){
+                res
+                .status(404)
+                .json({err: `library with id ${id} not found`})
+                .end();
+            } else{
+                res
+                .status(200)
+                .json(library)
+                .end()
+            }
+        })
+        
+    } catch(err){
+        console.log(err);
+        res
+        .status(401)
+        .json({err: `internal server error`})
+        .end()
+    }
+})
 
 libraryRouter.post('/', async (req, res) => {
     const { name, location, landline } = req.body;
