@@ -9,8 +9,8 @@ const { db } = require('./src/db/index.js');
 
 
 // routers:
-const { libraryRouter } = require('./src/routes/index')
-
+const { libraryRouter } = require('./src/routes')
+const { bookRouter } = require('./src/routes')
 //middwares
 const { consoleLoggingMIDWW } = require('./src/middlewares')
 
@@ -21,6 +21,7 @@ app.use(express.json());
 
 // routes
 app.use('/library', libraryRouter);
+app.use('/book', bookRouter);
 
 (async () => {
 

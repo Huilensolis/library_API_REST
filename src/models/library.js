@@ -26,6 +26,7 @@ const Library = db.define('Library', {
 
 (async () => {
     await Library.sync({ alter: true })
+    console.log('Library table synced');
 })();
 
 module.exports =  { Library };
