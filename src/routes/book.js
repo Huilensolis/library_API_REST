@@ -101,14 +101,6 @@ bookRouter.delete('/:id', async (req, res) => {
         .end()
         return;
     }
-
-    if(typeof id !== 'string'){
-        res
-        .status(400)
-        .json('id must be a string with a value of number')
-        .end()
-        return;
-    }
     
     // we look for the book to check if it exist
     await Book.findByPk(id)
