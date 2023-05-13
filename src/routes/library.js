@@ -5,7 +5,7 @@ const libraryRouter = express.Router();
 const { Library } = require('../models') 
 
 // GET
-// GET all
+//  all
 libraryRouter.get('/', (req, res) => {
     try{
         Library.findAll()
@@ -31,7 +31,7 @@ libraryRouter.get('/', (req, res) => {
     }
 });
 
-// GET by id
+// by id
 libraryRouter.get('/:id', (req, res) => {
     let id = req.params.id;
     try{
@@ -82,13 +82,13 @@ libraryRouter.post('/', async (req, res) => {
 })
 
 // PUT
-// PUT by id(pk) // modify library
+// by id(pk) // modify library
 libraryRouter.put('/:id', async (req, res) => {
     let { id } = req.params;
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
 
-    if(params.length <= 0){
+    if(params.length <= 0 || typeof id !== 'number' || !id){
         res
         .status(400)
         .json({err: 'missing parameters'})
@@ -104,7 +104,6 @@ libraryRouter.put('/:id', async (req, res) => {
             .status(404)
             .json({err: `library with id ${id} not found`})
             .end();
-
             return;
         }
     
@@ -125,70 +124,51 @@ libraryRouter.put('/:id', async (req, res) => {
 
 // DELETE
 // DELETE ALL
-libraryRouter.delete('/', async (req, res) => {
-    // we set delete all to false by default.
-    let { deleteAll = false, id } = req.body;
-    // we verify if we have the param deleteAll, and if we do, we set the scope variable to be true.
-    if(req.body.deleteAll === true){
-        deleteAll = true;
+libraryRouter.delete('/:id', async (req, res) => {
+    let { id } = req.params;
+
+    // we verify if we have the param id
+    if(typeof id !== 'number'){
+        res
+        .status(400)
+        .json({err: 'the aprameter id must be a number type'})
+        .end()
+        return;
     }
-
-    if(deleteAll === false){
-        // we verify if we have the param id
-        if(id !== undefined && typeof id === 'number'){
-            // we delete a specific one
-            try{
-                Library.destroy({
-                    where: {
-                        id: id,
-                    }
-                }).then(destroyedRows => {
-                    if(destroyedRows === 0){
-                        console.log('no library has been deleted')
-                        res
-                        .status(404)
-                        .json({err: `library with id ${id} not found`})
-                        .end();
-                    } else{
-                        console.log(`the library with id ${id} has been deleted`)
-                        res
-                        .status(200)
-                        .json({message: `the library with id ${id} has been deleted`})
-                        .end();
-                    }
-                })
-            } catch (err){
-                console.log('there was an error')
-                res
-                .status(400)
-                .json({err: 'internal server error'})
-                .end()
+    if(!id){
+        res
+        .status(400)
+        .json({err: 'missing parameter {id}'})
+        .end()
+        return;
+    }
+    // we delete a specific one
+    try{
+        Library.destroy({
+            where: {
+                id: id,
             }
-        } else{
-            res
-            .status(400)
-            .json({err: 'missing parameters'})
-            .end()
-        }
-    } else if(deleteAll === true){
-
-        try {
-            // delte all table content:
-            await Library.destroy({
-                truncate: true,
-            });
-
-            res
-            .status(200)
-            .json({message: 'all libraries have been deleted'})
-            .end()
-        } catch {
-            res
-            .status(400)
-            .json({err: 'internal server error'})
-            .end()
-        }
-
+        }).then(destroyedRows => {
+            if(destroyedRows === 0){
+                console.log('no library has been deleted')
+                res
+                .status(404)
+                .json({err: `library with id ${id} not found`})
+                .end();
+            } else{
+                console.log(`the library with id ${id} has been deleted`)
+                res
+                .status(200)
+                .json({message: `the library with id ${id} has been deleted`})
+                .end();
+            }
+        })
+    } catch (err){
+        console.log('there was an error')
+        res
+        .status(400)
+        .json({err: 'internal server error'})
+        .end()
     }
 })
 module.exports = { libraryRouter };

@@ -46,9 +46,4 @@ const Book = db.define('Book', {
     }, 
 })
 
-(async () => {
-    await Book.sync({ alter: true })
-    console.log('Book table synchronized');
-})();
-
 module.exports = { Book };

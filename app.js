@@ -12,7 +12,12 @@ const { db } = require('./src/db/index.js');
 const { libraryRouter } = require('./src/routes')
 const { bookRouter } = require('./src/routes')
 //middwares
-const { consoleLoggingMIDWW } = require('./src/middlewares')
+const { consoleLoggingMIDWW } = require('./src/middlewares');
+
+// models
+const { Library } = require('./src/models/library.js');
+const { Book } = require('./src/models')
+
 
 //middw
 // the order is important, all the middw must be before any other middw that tries to send a response to the client.
@@ -29,6 +34,11 @@ app.use('/book', bookRouter);
     await db.authenticate();
     console.log('Database connected succesfully');
 
+    await Library.sync({ alter: true})
+    console.log('Library table synchronized');
+
+    await Book.sync({ alter: true })
+    console.log('Book table synchronized');
 
     //listening
     app.listen(listeningPort, () => {
