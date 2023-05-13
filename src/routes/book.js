@@ -5,7 +5,7 @@ const bookRouter = express.Router()
 const { Book } = require('../models')
 
 // GET
-bookRouter.get('/', (req, res) => {
+bookRouter.get('/', async (req, res) => {
     Book.findAll()
     .then(books => {
         res
@@ -15,7 +15,7 @@ bookRouter.get('/', (req, res) => {
     })
 })
 // by id
-bookRouter.get('/:id', (req, res) => {
+bookRouter.get('/:id', async (req, res) => {
     const { id } = req.params;
     Book.findByPk(id)
     .then(book => {
@@ -33,7 +33,7 @@ bookRouter.get('/:id', (req, res) => {
 })
 
 // POST
-bookRouter.post('/', (req, res) => {
+bookRouter.post('/', async (req, res) => {
     try{
         const { isbn, title, autor, year } = req.body
         const newBook = Book.build({ isbn, title, autor, year})
@@ -52,7 +52,7 @@ bookRouter.post('/', (req, res) => {
 })
 
 // PUT
-bookRouter.put('/:id', (req, res) => {
+bookRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { isbn, title, autor, year } = req.body;
     const params = { isbn, title, autor, year };
@@ -93,7 +93,6 @@ bookRouter.put('/:id', (req, res) => {
 // DELETE
 bookRouter.delete('/:id', async (req, res) => {
     const { id } = req.params;
-    console.log({dtypeofId: typeof id, id: id});
     if(!id){
         res
         .status(400)

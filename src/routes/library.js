@@ -6,7 +6,7 @@ const { Library } = require('../models')
 
 // GET
 //  all
-libraryRouter.get('/', (req, res) => {
+libraryRouter.get('/', async (req, res) => {
     try{
         Library.findAll()
         .then(libraries => {
@@ -32,7 +32,7 @@ libraryRouter.get('/', (req, res) => {
 });
 
 // by id
-libraryRouter.get('/:id', (req, res) => {
+libraryRouter.get('/:id', async (req, res) => {
     let id = req.params.id;
     try{
 

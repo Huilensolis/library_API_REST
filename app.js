@@ -29,17 +29,20 @@ app.use('/library', libraryRouter);
 app.use('/book', bookRouter);
 
 (async () => {
-
+    try {
     // initializate the db
     await db.authenticate();
     console.log('Database connected succesfully');
-
+    
+    // snycing the Library & Book tables
     await Library.sync({ alter: true})
     console.log('Library table synchronized');
 
     await Book.sync({ alter: true })
     console.log('Book table synchronized');
-
+    } catch {
+        console.log('Error connecting to the database');
+    }
     //listening
     app.listen(listeningPort, () => {
         console.log(`Server started on port ${listeningPort}`);
