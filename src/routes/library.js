@@ -3,12 +3,14 @@ const libraryRouter = express.Router();
 
 // siquelize models
 const { Library } = require('../models') 
-
+const { Book } = require('../models')
 // GET
-//  all
+// all
 libraryRouter.get('/', async (req, res) => {
     try{
-        Library.findAll()
+        await Library.findAll({
+            include: Book
+        })
         .then(libraries => {
             if(libraries.length === 0){
                 res

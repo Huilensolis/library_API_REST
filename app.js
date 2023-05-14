@@ -5,14 +5,16 @@ const app = express();
 const listeningPort = 7321;
 
 // sequelize
-const { db } = require('./src/db/index.js');
+const { db } = require('./src/db');
 
 
 // routers:
 const { libraryRouter } = require('./src/routes')
 const { bookRouter } = require('./src/routes')
+
 //middwares
 const { consoleLoggingMIDWW } = require('./src/middlewares');
+// here will be the auth
 
 // models
 const { Library } = require('./src/models/library.js');
@@ -30,18 +32,21 @@ app.use('/book', bookRouter);
 
 (async () => {
     try {
-    // initializate the db
-    await db.authenticate();
-    console.log('Database connected succesfully');
-    
+    // initializate the db from 0
+    await db.sync();
+    await db.authenticate()
+
     // snycing the Library & Book tables
-    await Library.sync({ alter: true})
+    await Library.sync();
     console.log('Library table synchronized');
 
-    await Book.sync({ alter: true })
+    await Book.sync();
     console.log('Book table synchronized');
-    } catch {
+    
+    Library.hasMany(Book);
+    } catch(err) {
         console.log('Error connecting to the database');
+        console.log(err);
     }
     //listening
     app.listen(listeningPort, () => {

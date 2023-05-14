@@ -25,3 +25,17 @@ const Library = db.define('Library', {
     },
 });
 ```
+
+{
+    "name": "aaaaa",
+    "location": "asgsdgs",
+    "landline": "13124142"
+}
+
+{
+    "isbn": 124124124,
+    "title": "141fdszsd",
+    "author": "asfsfsdfaas",
+    "year": 2006,
+    "LibraryId": 1
+}

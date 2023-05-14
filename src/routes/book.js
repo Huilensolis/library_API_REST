@@ -2,7 +2,8 @@ const express = require('express')
 
 const bookRouter = express.Router()
 
-const { Book } = require('../models')
+const { Book, Library } = require('../models')
+const { libraryRouter } = require('./library')
 
 // GET
 bookRouter.get('/', async (req, res) => {
@@ -35,13 +36,47 @@ bookRouter.get('/:id', async (req, res) => {
 // POST
 bookRouter.post('/', async (req, res) => {
     try{
-        const { isbn, title, autor, year } = req.body
-        const newBook = Book.build({ isbn, title, autor, year})
-        newBook.save()
+        const { isbn, title, author, year, LibraryId } = req.body
+        const params = { isbn, title, author, year, LibraryId }
+        if(!isbn || !title || !author || !year){
+            res
+            .status(400)
+            .json(`params expected your params = ${JSON.stringify(params)}`)
+            .end()
+            return
+        }
+        let existLibrary = await Library.findByPk(LibraryId)
+        .then(async library => {
+            if(!library) {
+                return false;
+            } else{
+                return true;
+            }
+        })
+        if(existLibrary){
+            console.log('inside exist library');
+            const newBook = Book.build({ isbn, title, author, year, LibraryId})
+            newBook.save()
+            console.log(newBook);
+            
+            const library = await Library.findByPk(LibraryId);
+            await newBook.setLibrary(library);
 
-        res
-        .status(201)
-        .end()
+            const newBookFromDb = await Book.findByPk(newBook.id, {
+            include: [Library],
+            });
+
+            res
+            .status(201)
+            .json(newBookFromDb)
+            .end()
+        } else {
+            console.log(`the library with the id ${LibraryId} doesnt exist`);
+            res
+            .status(404)
+            .json(`the library with the id ${LibraryId} doesnt exist`)
+            .end()
+        }
     } catch (err){
         console.log(err.message);
         res
@@ -54,13 +89,13 @@ bookRouter.post('/', async (req, res) => {
 // PUT
 bookRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { isbn, title, autor, year } = req.body;
-    const params = { isbn, title, autor, year };
+    const { isbn, title, author, year } = req.body;
+    const params = { isbn, title, author, year };
 
     if(params.length <= 0 || !id){
         res
         .status(400)
-        .json('params expected')
+        .json(`params expected your params = ${JSON.stringify(params)}`)
         .end()
         return
     }
@@ -96,7 +131,7 @@ bookRouter.delete('/:id', async (req, res) => {
     if(!id){
         res
         .status(400)
-        .json('params expected')
+        .json(`id expected your param = ${id}`)
         .end()
         return;
     }
