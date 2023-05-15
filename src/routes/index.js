@@ -2,4 +2,6 @@ const { libraryRouter } = require('./library')
 
 const { bookRouter }  = require('./book')
 
-module.exports = { libraryRouter, bookRouter }
+const { userRouter } = require('./user')
+
+module.exports = { libraryRouter, bookRouter, userRouter }

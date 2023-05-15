@@ -4,6 +4,8 @@ const libraryRouter = express.Router();
 // siquelize models
 const { Library } = require('../models') 
 const { Book } = require('../models')
+
+
 // GET
 // all
 libraryRouter.get('/', async (req, res) => {
@@ -15,7 +17,7 @@ libraryRouter.get('/', async (req, res) => {
             if(libraries.length === 0){
                 res
                 .status(404)
-                .json({err: `no libraries found, this could happend because all libraries have been deleted`})
+                .json({err: `no libraries found`})
                 .end();
             } else{
                 res
@@ -38,7 +40,9 @@ libraryRouter.get('/:id', async (req, res) => {
     let id = req.params.id;
     try{
 
-        Library.findByPk(id)
+        await Library.findByPk(id, {
+            include: Book
+        })
         .then(library => {
             if(library === null){
                 res
@@ -62,7 +66,28 @@ libraryRouter.get('/:id', async (req, res) => {
     }
 })
 
-
+// library books by id
+libraryRouter.get('/:id/books', async (req, res) => {
+    console.log('hereee');
+    const { id } = req.params;
+    await Library.findByPk(id, {
+        include: Book
+    })
+    .then(library => {
+        if(!library){
+            console.log('library not found');
+            res
+            .status(404)
+            .json({err: `library with id ${id} not found`})
+            .end()
+        } else {
+            res
+            .status(200)
+            .json(library.Books)
+            .end()
+        }
+    })
+})
 // POST
 // create new library
 libraryRouter.post('/', async (req, res) => {
@@ -76,8 +101,10 @@ libraryRouter.post('/', async (req, res) => {
         // console.log(newLibrary.name); // "Jane"
 
         await newLibrary.save();
-        console.log(`the new library: ${newLibrary.name} has been created succesfully`);
-        res.status(201).json({newLibrary}).end()
+        res
+        .status(201)
+        .json(newLibrary)
+        .end()
     } catch (err){
         res.status(400).json({err}).end()
     }
@@ -99,7 +126,7 @@ libraryRouter.put('/:id', async (req, res) => {
         return;
     }
 
-    Library.findByPk(id)
+    await Library.findByPk(id)
     .then(async library => {
         if(!library){
             res
@@ -146,19 +173,17 @@ libraryRouter.delete('/:id', async (req, res) => {
     }
     // we delete a specific one
     try{
-        Library.destroy({
+        await Library.destroy({
             where: {
                 id: id,
             }
         }).then(destroyedRows => {
             if(destroyedRows === 0){
-                console.log('no library has been deleted')
                 res
                 .status(404)
                 .json({err: `library with id ${id} not found`})
                 .end();
             } else{
-                console.log(`the library with id ${id} has been deleted`)
                 res
                 .status(200)
                 .json({message: `the library with id ${id} has been deleted`})
@@ -166,11 +191,11 @@ libraryRouter.delete('/:id', async (req, res) => {
             }
         })
     } catch (err){
-        console.log('there was an error')
         res
         .status(400)
         .json({err: 'internal server error'})
         .end()
     }
 })
+
 module.exports = { libraryRouter };

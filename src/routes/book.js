@@ -7,7 +7,7 @@ const { libraryRouter } = require('./library')
 
 // GET
 bookRouter.get('/', async (req, res) => {
-    Book.findAll()
+    await Book.findAll()
     .then(books => {
         res
         .status(200)
@@ -18,7 +18,7 @@ bookRouter.get('/', async (req, res) => {
 // by id
 bookRouter.get('/:id', async (req, res) => {
     const { id } = req.params;
-    Book.findByPk(id)
+    await Book.findByPk(id)
     .then(book => {
         if(book.length <= 0){
             res
@@ -35,53 +35,61 @@ bookRouter.get('/:id', async (req, res) => {
 
 // POST
 bookRouter.post('/', async (req, res) => {
+    const { isbn, title, author, year, LibraryId } = req.body
+    const params = { isbn, title, author, year, LibraryId }
+    if(!isbn || !title || !author || !year){
+        res
+        .status(400)
+        .json(`params expected your params = ${JSON.stringify(params)}`)
+        .end()
+        return;
+    }
     try{
-        const { isbn, title, author, year, LibraryId } = req.body
-        const params = { isbn, title, author, year, LibraryId }
-        if(!isbn || !title || !author || !year){
-            res
-            .status(400)
-            .json(`params expected your params = ${JSON.stringify(params)}`)
-            .end()
-            return
-        }
-        let existLibrary = await Library.findByPk(LibraryId)
-        .then(async library => {
+        let libraryExist = await Library.findByPk(LibraryId)
+        .then(library => {
             if(!library) {
                 return false;
             } else{
                 return true;
             }
         })
-        if(existLibrary){
-            console.log('inside exist library');
+        if(libraryExist){
             const newBook = Book.build({ isbn, title, author, year, LibraryId})
-            newBook.save()
-            console.log(newBook);
+
+            try{
+                await newBook.validate()
+            } catch (error){
+                res
+                .status(401)
+                .json(error.errors.message)
+                .end()
+                return;
+            }
+
+            await newBook.save()
             
             const library = await Library.findByPk(LibraryId);
-            await newBook.setLibrary(library);
+            await newBook.setLibrary(library)
 
             const newBookFromDb = await Book.findByPk(newBook.id, {
-            include: [Library],
+                include: [Library],
             });
 
             res
             .status(201)
             .json(newBookFromDb)
             .end()
+            return
         } else {
-            console.log(`the library with the id ${LibraryId} doesnt exist`);
             res
             .status(404)
             .json(`the library with the id ${LibraryId} doesnt exist`)
             .end()
         }
     } catch (err){
-        console.log(err.message);
         res
         .status(401)
-        .json(err.message)
+        .json(err.errors.map(err => err.message))
         .end()
     }
 })
@@ -100,7 +108,7 @@ bookRouter.put('/:id', async (req, res) => {
         return
     }
 
-    Book.findByPk(id)
+    await Book.findByPk(id)
     .then(async book => {
         if(!book){
             res
@@ -112,11 +120,10 @@ bookRouter.put('/:id', async (req, res) => {
         try{
             await book.update(params)
             res
-            .status(200)
+            .status(201)
             .json(book)
             .end()
         } catch (err){
-            console.log(err.message);
             res
             .status(401)
             .json(err.message)
@@ -159,7 +166,7 @@ bookRouter.delete('/:id', async (req, res) => {
                 return;
             } 
             res
-            .status(200)
+            .status(201)
             .json('Book deleted')
             .end()
         })
