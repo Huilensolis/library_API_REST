@@ -97,8 +97,8 @@ libraryRouter.post('/', async (req, res) => {
         // we create a instance of the object and then save it in a var
         const newLibrary = Library.build(params);
         // (if you want to debugg, the lines down tells you if the instance of the model is being created.)
-        // console.log(newLibrary instanceof Library); // true
-        // console.log(newLibrary.name); // "Jane"
+        // console.log(newLibrary instanceof Library); 
+        // console.log(newLibrary.name); // 
 
         await newLibrary.save();
         res
