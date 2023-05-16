@@ -3,8 +3,10 @@ const libraryRouter = express.Router();
 
 // siquelize models
 const { Library } = require('../models') 
-const { Book } = require('../models')
+const { Book } = require('../models');
 
+// error handling
+const { errorHandling } = require('../services/')
 
 // GET
 // all
@@ -26,20 +28,23 @@ libraryRouter.get('/', async (req, res) => {
                 .end();
             }
         })
-    } catch(err){
-        console.log(err);
-        res
-        .status(400)
-        .json({err})
-        .end()
+    } catch(error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
     }
 });
 
 // by id
 libraryRouter.get('/:id', async (req, res) => {
     let id = req.params.id;
-    try{
+    if(!id){
+        res
+        .status(400)
+        .json({err: `id is required, your params: ${id}`})
+        .end();
+    }
 
+    try{
         await Library.findByPk(id, {
             include: Book
         })
@@ -57,42 +62,66 @@ libraryRouter.get('/:id', async (req, res) => {
             }
         })
 
-    } catch(err){
-        console.log(err);
-        res
-        .status(401)
-        .json({err: `internal server error`})
-        .end()
+    } catch(error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
     }
 })
 
 // library books by id
 libraryRouter.get('/:id/books', async (req, res) => {
-    console.log('hereee');
     const { id } = req.params;
-    await Library.findByPk(id, {
-        include: Book
-    })
-    .then(library => {
-        if(!library){
-            console.log('library not found');
-            res
-            .status(404)
-            .json({err: `library with id ${id} not found`})
-            .end()
-        } else {
-            res
-            .status(200)
-            .json(library.Books)
-            .end()
-        }
-    })
+    if(!id){
+        res
+        .status(400)
+        .json({err: `id is required, your params: ${id}`}).end()
+    }
+
+    try{
+        await Library.findByPk(id, {
+            include: Book
+        })
+        .then(library => {
+            if(!library){
+                console.log('library not found');
+                res
+                .status(404)
+                .json({err: `library with id ${id} not found`})
+                .end()
+            } else {
+                res
+                .status(200)
+                .json(library.Books)
+                .end()
+            }
+        })
+    } catch (error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
+    }
 })
 // POST
 // create new library
 libraryRouter.post('/', async (req, res) => {
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
+    // we check if all params are sent
+    if(!name || !location || !landline){
+        res
+        .status(400)
+        .json({err: 'missing body parameters', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        .end()
+        return;
+    }
+    // we check the body type of data
+    if(typeof name !== 'string' || typeof location !== 'string' || typeof landline !== 'string'){
+        res
+        .status(400)
+        .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        .end()
+        return;
+    }
+
     try{
         // we create a instance of the object and then save it in a var
         const newLibrary = Library.build(params);
@@ -100,13 +129,21 @@ libraryRouter.post('/', async (req, res) => {
         // console.log(newLibrary instanceof Library); 
         // console.log(newLibrary.name); // 
 
-        await newLibrary.save();
-        res
-        .status(201)
-        .json(newLibrary)
-        .end()
-    } catch (err){
-        res.status(400).json({err}).end()
+        // we validate it
+        await newLibrary.validate();
+
+        try{
+            // we try to save it
+            await newLibrary.save();
+            res.status(201).json(newLibrary).end()
+        } catch{
+            // if it faisl, then we log it into the file, and send only the 'server error'
+            errorHandling.log.dbErrors(error)
+            res.status(500).json({err: 'internal server error'}).end()
+        }
+    } catch (error){
+        console.log(error);
+        res.status(400).json({err: 'validation error'}).end()
     }
 })
 
@@ -117,18 +154,54 @@ libraryRouter.put('/:id', async (req, res) => {
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
 
-    if(params.length <= 0 || typeof id !== 'number' || !id){
+    // we check if all params are sent
+    if(!id){
         res
         .status(400)
-        .json({err: 'missing parameters'})
+        .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
         .end()
-
         return;
+    } 
+    // mi idea es hacer algo como esto por cada parametro, pero no se ve nada practico ajajja
+    if(name){
+        if(typeof name !== 'string'){
+            res
+            .status(400)
+            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        }
     }
 
+    if(location){
+        if(typeof location !== 'string'){
+            res
+            .status(400)
+            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        }
+    }
+
+    if(landline){
+        if(typeof landline !== 'string'){
+            res
+            .status(400)
+            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        }
+    }
+
+    if(params.length <= 0){
+        res
+        .status(400)
+        .json({err: 'missing body parameters', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+        .end()
+        return;
+    }
+    // we end checking params
+    /////////////////////////
+    // we parse the id to int
+    id = parseInt(id);
+
     await Library.findByPk(id)
-    .then(async library => {
-        if(!library){
+    .then(async findLibrary => {
+        if(!findLibrary){
             res
             .status(404)
             .json({err: `library with id ${id} not found`})
@@ -137,16 +210,11 @@ libraryRouter.put('/:id', async (req, res) => {
         }
     
         try {
-            await library.update({ name, location, landline })
-        
-            res
-            .status(200)
-            .end()
+            await findLibrary.update({ name, location, landline })
+
+            res.status(200).end()
         } catch{
-            res
-            .status(400)
-            .json({err: 'internal server error'})
-            .end()
+            res.status(400).json({err: 'internal server error'}).end()
         }
     })
 })
@@ -157,13 +225,6 @@ libraryRouter.delete('/:id', async (req, res) => {
     let { id } = req.params;
 
     // we verify if we have the param id
-    if(typeof id !== 'number'){
-        res
-        .status(400)
-        .json({err: 'the aprameter id must be a number type'})
-        .end()
-        return;
-    }
     if(!id){
         res
         .status(400)
@@ -171,6 +232,25 @@ libraryRouter.delete('/:id', async (req, res) => {
         .end()
         return;
     }
+    id = parseInt(id);
+
+    // we verify if the library exist:
+    const libraryExist = await Library.findByPk(id)
+    .then(library => {
+        if(!library){
+            return false
+        } else{
+            return true
+        }
+    })
+    if(!libraryExist){
+        res
+        .status(404)
+        .json({err: `library with id ${id} not found`})
+        .end();
+        return;
+    }
+
     // we delete a specific one
     try{
         await Library.destroy({
@@ -179,10 +259,8 @@ libraryRouter.delete('/:id', async (req, res) => {
             }
         }).then(destroyedRows => {
             if(destroyedRows === 0){
-                res
-                .status(404)
-                .json({err: `library with id ${id} not found`})
-                .end();
+                errorHandling.log.dbErrors('database has faild to destroy the library')
+                res.status(500).end()
             } else{
                 res
                 .status(200)
@@ -191,10 +269,8 @@ libraryRouter.delete('/:id', async (req, res) => {
             }
         })
     } catch (err){
-        res
-        .status(400)
-        .json({err: 'internal server error'})
-        .end()
+        errorHandling.log.dbErrors(err)
+        res.status(500).end()
     }
 })
 

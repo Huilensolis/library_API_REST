@@ -3,16 +3,20 @@ const fs = require('fs')
 // Error handling.
 const errorHandling = {
     // Error handling
-    log:(error, filePath) => {
-        error = `${error} \n`
-        fs.appendFile(filePath, error, caseErr => {
-            if(caseErr){
-                console.log('there is been an error and the error handling habe failed, we will log the error to the console.');
-                console.log(caseErr)
-            } else{
-                console.log(`There is been an error, it has been logged into ${filePath}`);
-            }
-        })
+    log: {
+        dbErrors : (error) => {
+            const filePath = 'src/logs/serverErrors.txt'
+            error = `${error} \n`
+            fs.appendFile(filePath, error, caseiFItFails => {
+                if(caseiFItFails){
+                    console.log('there is been an error and the error handling habe failed, the error will be logged in the console.');
+                    console.log(caseiFItFails)
+                } else{
+                    console.log(`There is been an error, it has been logged into ${filePath}`);
+                }
+            })
+        },
+        // here we will create the other methods for other errors.
     },
     // clear logs
     clearLogs: (filePath) => {

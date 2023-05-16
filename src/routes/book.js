@@ -3,35 +3,41 @@ const express = require('express')
 const bookRouter = express.Router()
 
 const { Book, Library } = require('../models')
-const { libraryRouter } = require('./library')
-const { where } = require('sequelize')
 
+const { errorHandling } = require('../services')
 // GET
 bookRouter.get('/', async (req, res) => {
-    await Book.findAll()
-    .then(books => {
-        res
-        .status(200)
-        .json(books)
-        .end()
-    })
+    try{
+        await Book.findAll()
+        .then(books => {
+            res
+            .status(200)
+            .json(books)
+            .end()
+        })
+    } catch (error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
+    }
 })
 // by id
 bookRouter.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    await Book.findByPk(id)
-    .then(book => {
-        if(book.length <= 0){
-            res
-            .status(404)
-            .json('Book not found')
-            .end()
-        } 
-        res
-        .status(200)
-        .json(book)
-        .end()
-    })
+    try{
+        const { id } = req.params;
+        await Book.findByPk(id)
+        .then(book => {
+            if(book.length <= 0){
+                res
+                .status(404)
+                .json('Book not found')
+                .end()
+            } 
+            res.status(200).json(book).end()
+        })
+    } catch(error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
+    }
 })
 
 // POST
@@ -56,7 +62,7 @@ bookRouter.post('/', async (req, res) => {
         }
     }
 
-    // we verify if we ahve recieved all params (library id can be null or undefined, its not obligatory)
+    // we verify if we have recieved all params (library id can be null or undefined, its not obligatory)
     if(!isbn || !title || !author || !year){
         res
         .status(400)
@@ -70,6 +76,8 @@ bookRouter.post('/', async (req, res) => {
         res.status(401).json({params_expected: {isbn: "number", title: "string", author: "string", year: "number"}, params_received: {idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year}})
         return
     }
+
+
     try{
         const newBook = await Book.build({ isbn, title, author, year, LibraryId})
 
@@ -120,40 +128,45 @@ bookRouter.post('/', async (req, res) => {
 
 // PUT
 bookRouter.put('/:id', async (req, res) => {
-    const { id } = req.params;
-    const { isbn, title, author, year } = req.body;
-    const params = { isbn, title, author, year };
-
-    if(params.length <= 0 || !id){
-        res
-        .status(400)
-        .json(`params expected your params = ${JSON.stringify(params)}`)
-        .end()
-        return
+    try{
+        const { id } = req.params;
+        const { isbn, title, author, year } = req.body;
+        const params = { isbn, title, author, year };
+    
+        if(params.length <= 0 || !id){
+            res
+            .status(400)
+            .json(`params expected your params = ${JSON.stringify(params)}`)
+            .end()
+            return
+        }
+    
+        await Book.findByPk(id)
+        .then(async book => {
+            if(!book){
+                res
+                .status(404)
+                .json('Book not found')
+                .end()
+                return;
+            }
+            try{
+                await book.update(params)
+                res
+                .status(201)
+                .json(book)
+                .end()
+            } catch (err){
+                res
+                .status(401)
+                .json(err.message)
+                .end()
+            }
+        })
+    } catch (error){
+        errorHandling.log.dbErrors(error)
+        res.status(500).end()
     }
-
-    await Book.findByPk(id)
-    .then(async book => {
-        if(!book){
-            res
-            .status(404)
-            .json('Book not found')
-            .end()
-            return;
-        }
-        try{
-            await book.update(params)
-            res
-            .status(201)
-            .json(book)
-            .end()
-        } catch (err){
-            res
-            .status(401)
-            .json(err.message)
-            .end()
-        }
-    })
 })
 
 // DELETE
@@ -162,7 +175,7 @@ bookRouter.delete('/:id', async (req, res) => {
     if(!id){
         res
         .status(400)
-        .json(`id expected your param = ${id}`)
+        .json(`id expected. your param = ${id}`)
         .end()
         return;
     }
@@ -188,11 +201,12 @@ bookRouter.delete('/:id', async (req, res) => {
                 .json('server error')
                 .end()
                 return;
-            } 
-            res
-            .status(201)
-            .json('Book deleted')
-            .end()
+            } else{
+                res
+                .status(201)
+                .json('Book deleted')
+                .end()
+            }
         })
     })
 })

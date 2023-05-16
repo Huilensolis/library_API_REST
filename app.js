@@ -45,6 +45,8 @@ async function initializateDB(){
         await db.sync();
         await db.authenticate()
         
+        Library.hasMany(Book);
+        Book.belongsTo(Library)
         // snycing the Library & Book tables
         await Library.sync();
         console.log('Library table synchronized');
@@ -55,7 +57,6 @@ async function initializateDB(){
         await User.sync();
         console.log('User table synchronized');
         
-        Library.hasMany(Book);
     } catch(err) {
         errorHandling.log(err, DBErrorFilePath)
     }
