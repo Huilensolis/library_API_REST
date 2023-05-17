@@ -1,8 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { db } = require('../db')
 
-const { errorHandling } = require('../services')
-
 const bcrypt = require('bcrypt');
 
 const User = db.define('User', {
@@ -19,31 +17,33 @@ const User = db.define('User', {
             len: [3, 15],
         }
     },
-    firstName: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        validate:{
-            len: [2, 15],
-            is: ["[a-z]",'i'],
-            isAlpha: true,
-        }
-    },
-    lastName: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: false,
-        validate:{
-            len: [2, 15],
-            is: ["[a-z]",'i'],
-            isAlpha: true,
-        }
-    },
+    name: [{
+        firstName: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            validate:{
+                len: [2, 15],
+                is: ["[a-z]",'i'],
+                isAlpha: true,
+            }
+        },
+        lastName: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: false,
+            validate:{
+                len: [2, 15],
+                is: ["[a-z]",'i'],
+                isAlpha: true,
+            }
+        },
+    }],
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         validate:{
-            isEmail: true
+            isEmail: true,
         }
     },
     password: {
@@ -55,14 +55,14 @@ const User = db.define('User', {
     }
 })
 
+
 User.beforeCreate(async (user) => {
-    const path = '../logs/dbErrorHandling.txt'
-    bcrypt.hash(user.password, 10, (error, hash) => {
-        if(error){
-            errorHandling.log(error, path)
-        }
-        console.log(hash)
+    try {
+        const hash = await bcrypt.hash(user.password, 10);
         user.password = hash;
-    })
-})
+        console.log(hash);
+    } catch (error) {
+        console.log(error);
+    }
+});
 module.exports = { User }

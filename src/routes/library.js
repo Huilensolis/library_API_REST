@@ -4,10 +4,6 @@ const libraryRouter = express.Router();
 // siquelize models
 const { Library } = require('../models') 
 const { Book } = require('../models');
-
-// error handling
-const { errorHandling } = require('../services/')
-
 // GET
 // all
 libraryRouter.get('/', async (req, res) => {
@@ -29,7 +25,7 @@ libraryRouter.get('/', async (req, res) => {
             }
         })
     } catch(error){
-        errorHandling.log.dbErrors(error)
+        console.log(error);
         res.status(500).end()
     }
 });
@@ -63,7 +59,7 @@ libraryRouter.get('/:id', async (req, res) => {
         })
 
     } catch(error){
-        errorHandling.log.dbErrors(error)
+        console.log(error);
         res.status(500).end()
     }
 })
@@ -96,7 +92,7 @@ libraryRouter.get('/:id/books', async (req, res) => {
             }
         })
     } catch (error){
-        errorHandling.log.dbErrors(error)
+        console.log(error);
         res.status(500).end()
     }
 })
@@ -136,9 +132,9 @@ libraryRouter.post('/', async (req, res) => {
             // we try to save it
             await newLibrary.save();
             res.status(201).json(newLibrary).end()
-        } catch{
+        } catch(error){
             // if it faisl, then we log it into the file, and send only the 'server error'
-            errorHandling.log.dbErrors(error)
+            console.log(error);
             res.status(500).json({err: 'internal server error'}).end()
         }
     } catch (error){
@@ -259,7 +255,7 @@ libraryRouter.delete('/:id', async (req, res) => {
             }
         }).then(destroyedRows => {
             if(destroyedRows === 0){
-                errorHandling.log.dbErrors('database has faild to destroy the library')
+                console.log('database has faild to destroy the library');
                 res.status(500).end()
             } else{
                 res
@@ -269,7 +265,7 @@ libraryRouter.delete('/:id', async (req, res) => {
             }
         })
     } catch (err){
-        errorHandling.log.dbErrors(err)
+        console.log(error);
         res.status(500).end()
     }
 })

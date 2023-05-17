@@ -3,8 +3,6 @@ const express = require('express')
 const bookRouter = express.Router()
 
 const { Book, Library } = require('../models')
-
-const { errorHandling } = require('../services')
 // GET
 bookRouter.get('/', async (req, res) => {
     try{
@@ -16,8 +14,8 @@ bookRouter.get('/', async (req, res) => {
             .end()
         })
     } catch (error){
-        errorHandling.log.dbErrors(error)
-        res.status(500).end()
+        console.log(error);
+        res.status(500).end();
     }
 })
 // by id
@@ -35,7 +33,7 @@ bookRouter.get('/:id', async (req, res) => {
             res.status(200).json(book).end()
         })
     } catch(error){
-        errorHandling.log.dbErrors(error)
+        console.log(error);
         res.status(500).end()
     }
 })
@@ -164,7 +162,7 @@ bookRouter.put('/:id', async (req, res) => {
             }
         })
     } catch (error){
-        errorHandling.log.dbErrors(error)
+        console.log(error);
         res.status(500).end()
     }
 })

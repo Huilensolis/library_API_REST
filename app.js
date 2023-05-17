@@ -21,9 +21,6 @@ const { Library } = require('./src/models/');
 const { Book } = require('./src/models')
 const { User } =  require('./src/models')
 
-// services
-const { errorHandling } = require('./src/services')
-
 //middw
 // the order is important, all the middw must be before any other middw that tries to send a response to the client.
 app.use(consoleLoggingMIDWW)
@@ -36,10 +33,6 @@ app.use('/user', userRouter);
 
 //initializateDB
 async function initializateDB(){
-    const DBErrorFilePath = './src/logs/dbErrorHandling.txt'
-    // clearing all the logs
-    errorHandling.clearLogs(DBErrorFilePath)
-
     try {
         // initializate the db from 0
         await db.sync();
@@ -54,11 +47,12 @@ async function initializateDB(){
         await Book.sync();
         console.log('Book table synchronized');
         
-        await User.sync();
+        // await User.sync({force: true});
+        await User.sync({force: true});
         console.log('User table synchronized');
         
     } catch(err) {
-        errorHandling.log(err, DBErrorFilePath)
+        console.log(err);
     }
 }
 
