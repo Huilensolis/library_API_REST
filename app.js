@@ -44,11 +44,10 @@ async function initializateDB(){
         await Library.sync();
         console.log('Library table synchronized');
         
-        await Book.sync();
+        await Book.sync({force: true});
         console.log('Book table synchronized');
         
-        // await User.sync({force: true});
-        await User.sync({force: true});
+        await User.sync();
         console.log('User table synchronized');
         
     } catch(err) {

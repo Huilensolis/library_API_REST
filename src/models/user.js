@@ -14,30 +14,13 @@ const User = db.define('User', {
         allowNull: false,
         unique: true,
         validate: {
-            len: [3, 15],
+            len: [1, 20],
         }
     },
-    name: [{
-        firstName: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            validate:{
-                len: [2, 15],
-                is: ["[a-z]",'i'],
-                isAlpha: true,
-            }
-        },
-        lastName: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            unique: false,
-            validate:{
-                len: [2, 15],
-                is: ["[a-z]",'i'],
-                isAlpha: true,
-            }
-        },
-    }],
+    name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -49,14 +32,37 @@ const User = db.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-            len: [8, 20],
+    },
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: true,
+        validate:{
+            isIn: [[true, false]],
+        }
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+        validate:{
+            isDate: true,
         }
     }
 })
 
 
 User.beforeCreate(async (user) => {
+    try {
+        const hash = await bcrypt.hash(user.password, 10);
+        user.password = hash;
+        console.log(hash);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+User.beforeUpdate(async (user) => {
     try {
         const hash = await bcrypt.hash(user.password, 10);
         user.password = hash;

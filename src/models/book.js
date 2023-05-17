@@ -12,7 +12,6 @@ const Book = db.define('Book', {
     isbn: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique: true,
         validate: {
             len: [0, 18]
         }
@@ -44,7 +43,15 @@ const Book = db.define('Book', {
         validate: {
             isBoolean: true,
         }
-    }, 
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+        validate: {
+            isDate: true,
+        }
+    }
 })
 
 Book.belongsTo(Library, { foreignKey: 'LibraryId' })

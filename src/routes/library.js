@@ -18,6 +18,7 @@ libraryRouter.get('/', async (req, res) => {
                 .json({err: `no libraries found`})
                 .end();
             } else{
+                console.log(libraries);
                 res
                 .status(200)
                 .json(libraries)
@@ -133,9 +134,12 @@ libraryRouter.post('/', async (req, res) => {
             await newLibrary.save();
             res.status(201).json(newLibrary).end()
         } catch(error){
-            // if it faisl, then we log it into the file, and send only the 'server error'
-            console.log(error);
-            res.status(500).json({err: 'internal server error'}).end()
+            if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
+                res.status(400).json({error}).end()
+            } else{
+                console.log(error);
+                res.status(500).json({err: 'internal server error'}).end()
+            }
         }
     } catch (error){
         console.log(error);

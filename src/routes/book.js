@@ -40,8 +40,8 @@ bookRouter.get('/:id', async (req, res) => {
 
 // POST
 bookRouter.post('/', async (req, res) => {
-    const { isbn, title, author, year } = req.body;
-    let { LibraryId } = req.body
+    let { isbn, title, author, year, LibraryId } = req.body;
+    console.log(LibraryId);
     // if they dont send a library id, it is set to null
     if(LibraryId === undefined){
         LibraryId = null;
@@ -71,7 +71,7 @@ bookRouter.post('/', async (req, res) => {
     // we check the data types
     if(typeof isbn !== 'number' || typeof title !== 'string' || typeof author !== 'string' || typeof year !== 'number'){
         console.log({idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year});
-        res.status(401).json({params_expected: {isbn: "number", title: "string", author: "string", year: "number"}, params_received: {idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year}})
+        res.status(400).json({params_expected: {isbn: "number", title: "string", author: "string", year: "number"}, params_received: {idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year}})
         return
     }
 
@@ -79,12 +79,30 @@ bookRouter.post('/', async (req, res) => {
     try{
         const newBook = await Book.build({ isbn, title, author, year, LibraryId})
 
-        await newBook.validate()    
-
+        try{
+            await newBook.validate()    
+        } catch(error){
+            console.log(error);
+            res.status(400).json(error).end()
+            return;
+        }
+        console.log(LibraryId);
         // if the json contains libraryId null
         if(LibraryId === null){
             // we save it
-            await newBook.save()
+            try{
+                await newBook.save()
+            } catch(error){
+                if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
+                    res.status(400).json(error)
+                    return
+                } else{
+                    console.log(error);
+                    res.status(500).json({error: 'internal server error'}).end()
+                    return;
+                }
+            }
+
             const newBookFromDb = await Book.findByPk(newBook.id)
             // const newBookFromDb = await Book.findOne({where: {
             //     isbn: isbn
@@ -106,19 +124,33 @@ bookRouter.post('/', async (req, res) => {
 
             if(libraryExist){
                 const library = await Library.findByPk(LibraryId);
+                
+                try{
+                    await newBook.save()
+                } catch(error){
+                    if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
+                        res.status(400).json(error.errors).end()
+                        return
+                    } else {
+                        console.log(error);
+                        return
+                    }
+                }
                 await newBook.setLibrary(library)
-                await newBook.save()
                 const newBookFromDb = await Book.findByPk(newBook.id, {
                     include: [Library],
                 });
     
                 res.status(201).json(newBookFromDb).end()
                 return
+            } else{
+                throw new Error({message: 'Library doesnt exist'})
             }
         }
     } catch (err){
+        console.log(err);
         res
-        .status(401)
+        .status(400)
         .json(err.errors.map(err => err.message))
         .end()
     }
@@ -156,7 +188,7 @@ bookRouter.put('/:id', async (req, res) => {
                 .end()
             } catch (err){
                 res
-                .status(401)
+                .status(400)
                 .json(err.message)
                 .end()
             }
@@ -189,14 +221,12 @@ bookRouter.delete('/:id', async (req, res) => {
             return;
         }
         // then if it exist, we delete it.
-        await book.update({
-            isDeleted: true
-        })
+        await book.update({deletedAt: new Date(), isDeleted: true})
         .then( numberOfDestroyedRows => {
             if(numberOfDestroyedRows <= 0 ){
                 res
                 .status(404)
-                .json('server error')
+                .json('error updating')
                 .end()
                 return;
             } else{
