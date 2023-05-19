@@ -12,6 +12,7 @@ const { db } = require('./src/db');
 const { libraryRouter } = require('./src/routes')
 const { bookRouter } = require('./src/routes')
 const { userRouter } = require('./src/routes')
+const { logInRouter } = require('./src/routes')
 //middwares
 const { consoleLoggingMIDWW } = require('./src/middlewares');
 // here will be the auth
@@ -31,6 +32,9 @@ app.use('/library', libraryRouter);
 app.use('/book', bookRouter);
 app.use('/user', userRouter);
 
+// get token api:
+app.use('/login', logInRouter);
+
 //initializateDB
 async function initializateDB(){
     try {
@@ -44,10 +48,13 @@ async function initializateDB(){
         await Library.sync();
         console.log('Library table synchronized');
         
-        await Book.sync({force: true});
+        await Book.sync();
         console.log('Book table synchronized');
         
-        await User.sync();
+        await User.sync({force: true});
+        // we define the admin user here
+        let adminUser = await User.build({username: 'admin', name: null, email: 'myexampleofmygmail@gmail.com', password: 'admin'})
+        await adminUser.save()
         console.log('User table synchronized');
         
     } catch(err) {

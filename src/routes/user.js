@@ -4,44 +4,28 @@ const { User } =  require('../models')
 
 const userRouter = express.Router()
 
+// middeware
+
 // GET
 // all
 userRouter.get('/', async(req, res) => {
     // we find all users(this contains sensitive information(passwd))
-    const allUsers = await User.findAll()
+    const allUsers = await User.findAll({attributes: {exclude: ['password']}})
     // we filter them to return only the username, name and email
     const filteredUsers = allUsers.map(user => {
-        return {
-            id: user.id,
-            username: user.username,
-            name: user.name,
-            email: user.email,
-            isDeleted: user.isDeleted,
-            deletedAt: user.deletedAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt
-        }
+        delete user.password
+        return user
     })
     res.status(200).json(filteredUsers).end()
 })
 // by id(pk)
 userRouter.get('/:id', async (req, res) => {
     const { id } = req.params
-    await User.findByPk(id)
+    await User.findByPk(id, {attributes: {exclude: ['password']}})
     .then(user => {
         if(user === null){
             res.status(404).json({error: 'User not found'}).end()
             return;
-        }
-        user = {
-            id: user.id,
-            username: user.username,
-            name: user.name,
-            email: user.email,
-            isDeleted: user.isDeleted,
-            deletedAt: user.deletedAt,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt
         }
         res.status(200).json(user).end()
         return
@@ -59,9 +43,6 @@ userRouter.post('/', async (req, res) => {
         if(!username || !email || !password){
             throw new Error('Missing required fields')
         }
-        if(password.length > 20 || password.length < 10){
-            throw new Error('Password must be between 10 and 20 characters')
-        }
         const newUser = User.build({ username, name, email, password })
 
         try {
@@ -75,10 +56,16 @@ userRouter.post('/', async (req, res) => {
             return;
         }
 
-        try{
+        try {
             await newUser.save()
+            const newUserFromDb = User.findByPk(newUser.id, {attributes: {exclude: ['password']}})
+
+            res
+            .status(201)
+            .json(newUserFromDb)
+            .end()
         } catch(error){
-            console.log({error});
+            console.log(error);
 
             if (error.name === 'SequelizeUniqueConstraintError') {
                 res
@@ -94,11 +81,6 @@ userRouter.post('/', async (req, res) => {
                 return;
             }
         }
-
-        res
-        .status(201)
-        .json({newUser:{username: newUser.username, name: newUser.name, email: newUser.email}})
-        .end()
     } catch(err){
         console.log(err);
         res
@@ -163,10 +145,6 @@ userRouter.put('/:id', async (req, res) => {
 // DELETE
 userRouter.delete('/:id', async (req, res) => {
     const { id } = req.params
-    if(!id){
-        res.status(400).json({error: 'Missing id in req params'}).end()
-        return
-    }
 
     await User.findByPk(id)
     .then(user => {

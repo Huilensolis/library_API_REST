@@ -1,3 +1,5 @@
 const consoleLoggingMIDWW = require('./console-loggins');
 
-module.exports = { consoleLoggingMIDWW }
+const { secret } = require('./auth')
+
+module.exports = { consoleLoggingMIDWW, secret }

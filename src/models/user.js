@@ -32,6 +32,17 @@ const User = db.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false,
+        validator: {
+            len: [5, 20]
+        }
+    },
+    role: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: 'user',
+        validate: {
+            isIn: ['user', 'admin']
+        }
     },
     isDeleted: {
         type: DataTypes.BOOLEAN,
@@ -52,23 +63,22 @@ const User = db.define('User', {
 })
 
 
+async function HashPassword(user){
+    try {
+        const hash = await bcrypt.hash(user.password, 10);
+        user.password = hash;
+        console.log(hash);
+    } catch (error) {
+        console.log(error);
+    }
+}
 User.beforeCreate(async (user) => {
-    try {
-        const hash = await bcrypt.hash(user.password, 10);
-        user.password = hash;
-        console.log(hash);
-    } catch (error) {
-        console.log(error);
+    if(user.username === 'admin' && user.password === 'admin'){
+        user.role = 'admin';
     }
+    await HashPassword(user);
 });
-
 User.beforeUpdate(async (user) => {
-    try {
-        const hash = await bcrypt.hash(user.password, 10);
-        user.password = hash;
-        console.log(hash);
-    } catch (error) {
-        console.log(error);
-    }
+    await HashPassword(user);
 });
 module.exports = { User }
