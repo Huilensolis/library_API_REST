@@ -4,6 +4,8 @@ const { User } =  require('../models')
 
 const userRouter = express.Router()
 
+const passport = require('passport')
+const auth = passport.authenticate('jwt', { session: false })
 // middeware
 
 // GET
@@ -34,7 +36,7 @@ userRouter.get('/:id', async (req, res) => {
 })
 
 // POST
-userRouter.post('/', async (req, res) => {
+userRouter.post('/', auth, async (req, res) => {
     // userName, name, email, password
     const { username, name, email, password } = req.body
     
@@ -91,7 +93,7 @@ userRouter.post('/', async (req, res) => {
 })
 
 // PUT
-userRouter.put('/:id', async (req, res) => {
+userRouter.put('/:id', auth, async (req, res) => {
     try{
         const { id } = req.params;
         const { username, name, email, password, isDeleted } = req.body;
@@ -143,9 +145,8 @@ userRouter.put('/:id', async (req, res) => {
 })
 
 // DELETE
-userRouter.delete('/:id', async (req, res) => {
+userRouter.delete('/:id', auth, async (req, res) => {
     const { id } = req.params
-
     await User.findByPk(id)
     .then(user => {
         if(user === null){

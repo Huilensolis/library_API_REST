@@ -18,14 +18,14 @@ const passportJwt = require('passport-jwt');
 const JWTStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
-const secret = 'xywkjyvnhmtgpureq';//process.env.SECRET;
+const secret = 'xywvn 123 ./-? im-a-secret-sign';//process.env.SECRET;
 
 passport.use(new JWTStrategy({jwtFromRequest:  ExtractJwt.fromAuthHeaderAsBearerToken(), secretOrKey: secret}, async (jwtPayload, done) => {
 
     const passwordInDb = await User.findOne(
         {
             where: {
-                User:  jwtPayload.username
+                username:  jwtPayload.username
             }
         }
     )
@@ -38,7 +38,7 @@ passport.use(new JWTStrategy({jwtFromRequest:  ExtractJwt.fromAuthHeaderAsBearer
     })
 
     if(!passwordInDb){
-        return done(null, false, {error: 'user not find'})
+        return done(null, false, {error: 'user not match'})
     }
 
     const doesPasswordMatch = await bcrypt.compare(jwtPayload.password, passwordInDb)

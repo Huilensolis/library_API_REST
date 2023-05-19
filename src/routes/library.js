@@ -4,6 +4,9 @@ const libraryRouter = express.Router();
 // siquelize models
 const { Library } = require('../models') 
 const { Book } = require('../models');
+
+const passport = require('passport')
+const auth = passport.authenticate('jwt', { session: false })
 // GET
 // all
 libraryRouter.get('/', async (req, res) => {
@@ -99,7 +102,7 @@ libraryRouter.get('/:id/books', async (req, res) => {
 })
 // POST
 // create new library
-libraryRouter.post('/', async (req, res) => {
+libraryRouter.post('/', auth, async (req, res) => {
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
     // we check if all params are sent
@@ -149,7 +152,7 @@ libraryRouter.post('/', async (req, res) => {
 
 // PUT
 // by id(pk) // modify library
-libraryRouter.put('/:id', async (req, res) => {
+libraryRouter.put('/:id', auth, async (req, res) => {
     let { id } = req.params;
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
@@ -220,8 +223,7 @@ libraryRouter.put('/:id', async (req, res) => {
 })
 
 // DELETE
-// DELETE ALL
-libraryRouter.delete('/:id', async (req, res) => {
+libraryRouter.delete('/:id', auth, async (req, res) => {
     let { id } = req.params;
 
     // we verify if we have the param id

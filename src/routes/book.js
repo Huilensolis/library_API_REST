@@ -3,6 +3,9 @@ const express = require('express')
 const bookRouter = express.Router()
 
 const { Book, Library } = require('../models')
+
+const passport = require('passport')
+const auth = passport.authenticate('jwt', { session: false })
 // GET
 bookRouter.get('/', async (req, res) => {
     try{
@@ -39,7 +42,7 @@ bookRouter.get('/:id', async (req, res) => {
 })
 
 // POST
-bookRouter.post('/', async (req, res) => {
+bookRouter.post('/', auth, async (req, res) => {
     let { isbn, title, author, year, LibraryId } = req.body;
     console.log(LibraryId);
     // if they dont send a library id, it is set to null
@@ -157,7 +160,7 @@ bookRouter.post('/', async (req, res) => {
 })
 
 // PUT
-bookRouter.put('/:id', async (req, res) => {
+bookRouter.put('/:id', auth, async (req, res) => {
     try{
         const { id } = req.params;
         const { isbn, title, author, year } = req.body;
@@ -200,7 +203,7 @@ bookRouter.put('/:id', async (req, res) => {
 })
 
 // DELETE
-bookRouter.delete('/:id', async (req, res) => {
+bookRouter.delete('/:id', auth, async (req, res) => {
     const { id } = req.params;
     if(!id){
         res
