@@ -27,7 +27,7 @@ bookRouter.get('/:id', async (req, res) => {
         const { id } = req.params;
         await Book.findByPk(id)
         .then(book => {
-            if(book.length <= 0){
+            if(book === null){
                 res
                 .status(404)
                 .json('Book not found')
@@ -58,7 +58,7 @@ bookRouter.post('/', auth, async (req, res) => {
             }
         })
         if(!libraryExist){
-            res.status(404).json(`the library with the id ${LibraryId} doesnt exist`).end()
+            res.status(404).json(`the library with the id ${LibraryId} doesnt exist`).end() // changee
             return
         }
     }
@@ -67,7 +67,7 @@ bookRouter.post('/', auth, async (req, res) => {
     if(!isbn || !title || !author || !year){
         res
         .status(400)
-        .json(`params expected: isbn<strying>, title<string>, author<string>, year<int>`)
+        .json({error: `there are missing params in your request. `}, {params_expected: `isbn<strying>, title<string>, author<string>, year<int>`})
         .end()
         return;
     }
@@ -86,7 +86,7 @@ bookRouter.post('/', auth, async (req, res) => {
             await newBook.validate()    
         } catch(error){
             console.log(error);
-            res.status(400).json(error).end()
+            res.status(400).json({error: 'error while validating the data', error_data: error.errors}).end()
             return;
         }
         console.log(LibraryId);
@@ -147,13 +147,13 @@ bookRouter.post('/', auth, async (req, res) => {
                 res.status(201).json(newBookFromDb).end()
                 return
             } else{
-                throw new Error({message: 'Library doesnt exist'})
+                throw new Error({message: 'Library doesnt exist'}) // changee
             }
         }
     } catch (err){
         console.log(err);
         res
-        .status(400)
+        .status(500) // changeee
         .json(err.errors.map(err => err.message))
         .end()
     }
@@ -191,7 +191,7 @@ bookRouter.put('/:id', auth, async (req, res) => {
                 .end()
             } catch (err){
                 res
-                .status(400)
+                .status(500)
                 .json(err.message)
                 .end()
             }
@@ -205,13 +205,6 @@ bookRouter.put('/:id', auth, async (req, res) => {
 // DELETE
 bookRouter.delete('/:id', auth, async (req, res) => {
     const { id } = req.params;
-    if(!id){
-        res
-        .status(400)
-        .json(`id expected. your param = ${id}`)
-        .end()
-        return;
-    }
     
     // we look for the book to check if it exist
     await Book.findByPk(id)
@@ -228,7 +221,7 @@ bookRouter.delete('/:id', auth, async (req, res) => {
         .then( numberOfDestroyedRows => {
             if(numberOfDestroyedRows <= 0 ){
                 res
-                .status(404)
+                .status(500)
                 .json('error updating')
                 .end()
                 return;

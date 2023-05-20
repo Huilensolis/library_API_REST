@@ -4,9 +4,9 @@ const { User } =  require('../models')
 
 const userRouter = express.Router()
 
+// middeware
 const passport = require('passport')
 const auth = passport.authenticate('jwt', { session: false })
-// middeware
 
 // GET
 // all
@@ -26,7 +26,7 @@ userRouter.get('/:id', async (req, res) => {
     await User.findByPk(id, {attributes: {exclude: ['password']}})
     .then(user => {
         if(user === null){
-            res.status(404).json({error: 'User not found'}).end()
+            res.status(404).json({error: 'User not found'}).end() // changee
             return;
         }
         res.status(200).json(user).end()
@@ -100,7 +100,7 @@ userRouter.put('/:id', auth, async (req, res) => {
         let bodyParams = { username, name, email, password, isDeleted };
 
         let ifNoParams = Object.values(bodyParams).every(param => param === undefined)
-        if(ifNoParams || !id){
+        if(ifNoParams){
             res
             .status(400)
             .json(`there is been an error receiving the params. the params expected are some of these: id, username, name, email, password, isDeleted.`)
@@ -110,7 +110,7 @@ userRouter.put('/:id', auth, async (req, res) => {
         const thisUser =  await User.findByPk(id)
         if(thisUser === null){
             res
-            .status(404)
+            .status(404) // changee
             .json(`User not found`)
             .end()
             return

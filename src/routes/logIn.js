@@ -26,7 +26,7 @@ logInRouter.post('/', async (req, res) => {
         }
     )
     if(!findUser){
-        res.status(400).json({ message: 'User not found' })
+        res.status(404).json({ message: 'User not found' })
         return;
     }
     const doesPasswordMatch = await bcrypt.compare(password, findUser.password)

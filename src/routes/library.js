@@ -18,7 +18,7 @@ libraryRouter.get('/', async (req, res) => {
         .then(libraries => {
             if(libraries.length === 0){
                 res
-                .status(404)
+                .status(404) // changee
                 .json({err: `no libraries found`})
                 .end();
             } else{
@@ -38,12 +38,6 @@ libraryRouter.get('/', async (req, res) => {
 // by id
 libraryRouter.get('/:id', async (req, res) => {
     let id = req.params.id;
-    if(!id){
-        res
-        .status(400)
-        .json({err: `id is required, your params: ${id}`})
-        .end();
-    }
 
     try{
         await Library.findByPk(id, {
@@ -52,7 +46,7 @@ libraryRouter.get('/:id', async (req, res) => {
         .then(library => {
             if(library === null){
                 res
-                .status(404)
+                .status(400) // changee
                 .json({err: `library with id ${id} not found`})
                 .end();
             } else{
@@ -72,11 +66,6 @@ libraryRouter.get('/:id', async (req, res) => {
 // library books by id
 libraryRouter.get('/:id/books', async (req, res) => {
     const { id } = req.params;
-    if(!id){
-        res
-        .status(400)
-        .json({err: `id is required, your params: ${id}`}).end()
-    }
 
     try{
         await Library.findByPk(id, {
@@ -159,13 +148,6 @@ libraryRouter.put('/:id', auth, async (req, res) => {
     const params = { name, location, landline };
 
     // we check if all params are sent
-    if(!id){
-        res
-        .status(400)
-        .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
-        .end()
-        return;
-    } 
     // mi idea es hacer algo como esto por cada parametro, pero no se ve nada practico ajajja
     if(name){
         if(typeof name !== 'string'){
@@ -227,8 +209,6 @@ libraryRouter.put('/:id', auth, async (req, res) => {
 libraryRouter.delete('/:id', auth, async (req, res) => {
     let { id } = req.params;
 
-    id = parseInt(id);
-
     // we verify if the library exist:
     const libraryExist = await Library.findByPk(id)
     .then(library => {
@@ -259,7 +239,7 @@ libraryRouter.delete('/:id', auth, async (req, res) => {
         .then(updatedRows => {
             if(updatedRows === 0 || updatedRows === null){
                 res
-                .status(404)
+                .status(500)
                 .json({err: `internal internal server error`})
                 .end();
             } else {
