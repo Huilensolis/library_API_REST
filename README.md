@@ -95,7 +95,7 @@ I divided the project in different stages:
 
 When i finished the project, i decided to polish the code, setting the adecuatetd code status for every response. And at the same time creating a errorHandler, which is a class for sending responses in a more legible format, so I implemented the errorHandler to the response json in the errors cases.
 
-Irealized there is a lot of code which is just verifying the data types and request body, so I was willing to implement it into my aplication, but now (when i write this), the module ahs finsihed and I must continue with the bootcamp shedule to learn Angular next.
+I realized there is a lot of code which is just verifying the data types and request body, so I was willing to implement Express valdiator into my aplication, but now (when i write this), the node module has finsihed and I must continue with the bootcamp shedule to learn Angular next.
 
 ## API Documentation
 
