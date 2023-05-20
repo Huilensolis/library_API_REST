@@ -1,6 +1,7 @@
 # Library API REST
 
 ## Table of Contents
+// here we will use icons to redirect.
 1. [Project Goal](#project-goal)
 2. [Developing Experience](#developing-experience)
 3. [API Documentation](#api-documentation)
@@ -78,10 +79,23 @@ I divided the project in different stages:
 2. Create the models for Library, Book and User.
 3. Create the routes to CRUD the 3 already mentioned models.
 
-### - Second stage: Log In route, Pasport-jwt Strategy and Auth middw
+- i initializated the database: I save the configuration in a folder "db". where i initialize the database, saving the data into a "db" file inside the same folder and i determine the dialect to sqlite3.
+- I create the models: I save all the models in the "models" folder, where i declare all their properties and data validations.
+- I create the routes to CRUD the models: I create and save the routes in the "routes folder".
+
+### - Second stage: Log In route, Pasport-jwt Strategy and Auth middleware
 1. Log In route
 2. Define a Passport-jwt Strategy
-3. Create a middw wich uses the Passport-Jwt Strategy
+3. Create a middleware uses the Passport-Jwt Strategy
+
+- I create the Log In route: when a post req is received, it verifies that the user exist and the passpord matches, while it ends the req with a signed token as a response
+- I define the Passport-jwt Strategy, where i verify the user exist and the password matches for second time.
+- Create a middleware which uses the before defined passport-jwt Srategy and stops the middlewares execution chain.
+- Assing that middleware to every action in the crud which requires authentication and admin role.
+
+When i finished the project, i decided to polish the code, setting the adecuatetd code status for every response. And at the same time creating a errorHandler, which is a class for sending responses in a more legible format, so I implemented the errorHandler to the response json in the errors cases.
+
+Irealized there is a lot of code which is just verifying the data types and request body, so I was willing to implement it into my aplication, but now (when i write this), the module ahs finsihed and I must continue with the bootcamp shedule to learn Angular next.
 
 ## API Documentation
 
