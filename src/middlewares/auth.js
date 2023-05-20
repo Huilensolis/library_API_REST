@@ -1,3 +1,5 @@
+// i was experimenting with the api tokens implementation, but we wont need it for this project, anyways i will leave it here.
+
 // const auth = (req, res, next) => {
 //     let API_TOKEN = "xywzcvtynm"// process.env.API_TOKEN;
 //     console.log('Authenticating...');

@@ -8,6 +8,10 @@ const { Book } = require('../models');
 const passport = require('passport');
 const { json } = require('sequelize');
 const auth = passport.authenticate('jwt', { session: false })
+
+// error handling
+const { Error } = require('../utils')
+
 // GET
 // all
 libraryRouter.get('/', async (req, res) => {
@@ -17,21 +21,21 @@ libraryRouter.get('/', async (req, res) => {
         })
         .then(libraries => {
             if(libraries.length === 0){
-                res
-                .status(404) // changee
-                .json({err: `no libraries found`})
-                .end();
+                // message, code, status, data
+                const errorObj = new Error('There are not librarires here yet, try posting some', 418, 'EMPTY', null)
+                res.status(418).json(errorObj).end();
+                return
             } else{
-                console.log(libraries);
-                res
-                .status(200)
-                .json(libraries)
-                .end();
+                res.status(200).json(libraries).end();
+                return
             }
         })
     } catch(error){
         console.log(error);
-        res.status(500).end()
+        // message, code, status, data
+        const errorObj = new Error('Something went wrong', 500, 'ERROR', error)
+        res.status(500).json(errorObj).end();
+        return
     }
 });
 
@@ -45,21 +49,20 @@ libraryRouter.get('/:id', async (req, res) => {
         })
         .then(library => {
             if(library === null){
-                res
-                .status(400) // changee
-                .json({err: `library with id ${id} not found`})
-                .end();
+                // message, code, status, data
+                const erroObj = new Error('library not found', 404, 'ERROR', null)
+                res.status(404).json(erroObj).end();
+                return
             } else{
-                res
-                .status(200)
-                .json(library)
-                .end()
+                res.status(200).json(library).end()
             }
         })
 
     } catch(error){
-        console.log(error);
-        res.status(500).end()
+        // message, code, status, data
+        const erroObj = new Error('Something went wrong', 500, 'ERROR', error)
+        res.status(500).json(erroObj).end();
+        return
     }
 })
 
@@ -73,21 +76,19 @@ libraryRouter.get('/:id/books', async (req, res) => {
         })
         .then(library => {
             if(!library){
-                console.log('library not found');
-                res
-                .status(404)
-                .json({err: `library with id ${id} not found`})
-                .end()
+                // message, code, status, data
+                const errorObj = new Error('library not found', 404, 'ERROR', null)
+                res.status(404).json(errorObj).end();
+                return
             } else {
-                res
-                .status(200)
-                .json(library.Books)
-                .end()
+                res.status(200).json(library.Books).end()
             }
         })
     } catch (error){
-        console.log(error);
-        res.status(500).end()
+        // message, code, status, data
+        const errorObj = new Error('Something went wrong', 500, 'ERROR', error)
+        res.status(500).json(errorObj).end();
+        return
     }
 })
 // POST
@@ -97,19 +98,17 @@ libraryRouter.post('/', auth, async (req, res) => {
     const params = { name, location, landline };
     // we check if all params are sent
     if(!name || !location || !landline){
-        res
-        .status(400)
-        .json({err: 'missing body parameters', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
-        .end()
-        return;
+        // message, code, status, data
+        const errorObj = new Error('missing body parameters', 400, 'ERROR', null)
+        res.status(400).json(errorObj).end();
+        return
     }
     // we check the body type of data
     if(typeof name !== 'string' || typeof location !== 'string' || typeof landline !== 'string'){
-        res
-        .status(400)
-        .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
-        .end()
-        return;
+        // message, code, status, data
+        const errorObj = new Error('body parameters must be strings', 400, 'ERROR', null)
+        res.status(400).json(errorObj).end();
+        return
     }
 
     try{
@@ -128,15 +127,20 @@ libraryRouter.post('/', auth, async (req, res) => {
             res.status(201).json(newLibrary).end()
         } catch(error){
             if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
-                res.status(400).json({error}).end()
+                // message, code, status, data
+                const errorObj = new Error('validation error',400 , 'ERROR', error)
+                res.status(400).json(errorObj).end();
+                return
             } else{
-                console.log(error);
-                res.status(500).json({err: 'internal server error'}).end()
+                // message, code, status, data
+                const errorObj = new Error('internal server error', 500, 'ERROR', error)
+                res.status(500).json(errorObj).end();
             }
         }
     } catch (error){
-        console.log(error);
-        res.status(400).json({err: 'validation error'}).end()
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 500, 'ERROR', error)
+        res.status(500).json(errorObj).end();
     }
 })
 
@@ -151,47 +155,43 @@ libraryRouter.put('/:id', auth, async (req, res) => {
     // mi idea es hacer algo como esto por cada parametro, pero no se ve nada practico ajajja
     if(name){
         if(typeof name !== 'string'){
-            res
-            .status(400)
-            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+            // message, code, status, data
+            const errorObj = new Error('body parameters must be strings', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end();
+            return
         }
     }
 
     if(location){
         if(typeof location !== 'string'){
-            res
-            .status(400)
-            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+            const errorObj = new Error('body parameters must be strings', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end();
+            return
         }
     }
 
     if(landline){
         if(typeof landline !== 'string'){
-            res
-            .status(400)
-            .json({err: 'body parameters must be strings', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
+            const errorObj = new Error('body parameters must be strings', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end();
+            return
         }
     }
 
     if(params.length <= 0){
-        res
-        .status(400)
-        .json({err: 'missing body parameters', expectedBodyParams: {"name": "string", "location": "string", "landline": "string"}})
-        .end()
+        // message, code, status, data
+        const errorObj = new Error('missing body parameters', 400, 'ERROR', null)
+        res.status(400).json(errorObj).end();
         return;
     }
     // we end checking params
-    /////////////////////////
-    // we parse the id to int
-    id = parseInt(id);
 
     await Library.findByPk(id)
     .then(async findLibrary => {
         if(!findLibrary){
-            res
-            .status(404)
-            .json({err: `library with id ${id} not found`})
-            .end();
+            // message, code, status, data
+            const errorObj = new Error('library not found', 404, 'ERROR', null)       
+            res.status(404).json(errorObj).end();
             return;
         }
     
@@ -199,8 +199,11 @@ libraryRouter.put('/:id', auth, async (req, res) => {
             await findLibrary.update({ name, location, landline })
 
             res.status(201).end()
-        } catch{
-            res.status(400).json({err: 'internal server error'}).end()
+        } catch(error){
+            // message, code, status, data
+            const errorObj = new Error('internal server error', 500, 'ERROR', error)
+            res.status(500).json(errorObj).end();
+            return;
         }
     })
 })
@@ -219,10 +222,9 @@ libraryRouter.delete('/:id', auth, async (req, res) => {
         }
     })
     if(!libraryExist){
-        res
-        .status(404)
-        .json({err: `library with id ${id} not found`})
-        .end();
+        // message, code, status, data
+        const errorObj = new Error('library not found', 404, 'ERROR', null)
+        res.status(404).json(errorObj).end();
         return;
     }
 
@@ -238,17 +240,18 @@ libraryRouter.delete('/:id', auth, async (req, res) => {
         })
         .then(updatedRows => {
             if(updatedRows === 0 || updatedRows === null){
-                res
-                .status(500)
-                .json({err: `internal internal server error`})
-                .end();
+                // message, code, status, data
+                const errorObj = new Error('internal server error', 500, 'ERROR', null)
+                res.status(500).json(errorObj).end();
+                return;
             } else {
                 res.status(201).end()
             }
         })
     } catch (err){
-        console.log(err);
-        res.status(500).json({error: err}).end()
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 500, 'ERROR', err)
+        res.status(500).json(errorObj).end()
     }
 })
 

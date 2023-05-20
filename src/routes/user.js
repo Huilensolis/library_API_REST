@@ -8,11 +8,19 @@ const userRouter = express.Router()
 const passport = require('passport')
 const auth = passport.authenticate('jwt', { session: false })
 
+// error handling
+const { Error } = require('../utils')
 // GET
 // all
 userRouter.get('/', async(req, res) => {
     // we find all users(this contains sensitive information(passwd))
     const allUsers = await User.findAll({attributes: {exclude: ['password']}})
+    if(allUsers.length === 0){
+        // message, code, status, data
+        const errorObj = new Error('There are not users here yet, try posting some', 418, 'ERROR', null)
+        res.status(418).json(errorObj).end()
+        return
+    }
     // we filter them to return only the username, name and email
     const filteredUsers = allUsers.map(user => {
         delete user.password
@@ -26,11 +34,13 @@ userRouter.get('/:id', async (req, res) => {
     await User.findByPk(id, {attributes: {exclude: ['password']}})
     .then(user => {
         if(user === null){
-            res.status(404).json({error: 'User not found'}).end() // changee
-            return;
+            const errorObj = new Error('User not found', 404, 'ERROR', null)
+            res.status(404).json(errorObj).end()
+            return
+        } else{
+            res.status(200).json(user).end()
+            return
         }
-        res.status(200).json(user).end()
-        return
     })
 
 })
@@ -43,18 +53,17 @@ userRouter.post('/', auth, async (req, res) => {
     try{
         // we verify if the obligatory params are being passed.
         if(!username || !email || !password){
-            throw new Error('Missing required fields')
+            const errorObj = new Error('there is been an error receiving the params. the params expected are some of these: username, email, password.', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end()
+            return
         }
         const newUser = User.build({ username, name, email, password })
 
         try {
             await newUser.validate()
         } catch (error) {
-            console.log('validation failed');
-            res
-            .status(500)
-            .json({error: error})
-            .end()
+            const errorObj = new Error('there its been an error while validating the user params, check your json.', 400, 'ERROR', error)
+            res.status(500).json(errorObj).end()
             return;
         }
 
@@ -70,16 +79,12 @@ userRouter.post('/', auth, async (req, res) => {
             console.log(error);
 
             if (error.name === 'SequelizeUniqueConstraintError') {
-                res
-                .status(400)
-                .json({error: 'the gmail must be unique and the name must be alpha'})
-                .end()
+                const errorObj = new Error('the gmail must be unique and the name must be alpha', 400, 'ERROR', error) 
+                res.status(400).json(errorObj).end()
                 return;
             } else{
-                res
-                .status(500)
-                .json(`Internal server error while saving user`)
-                .end()
+                const errorObj = new Error('Internal server error while saving user', 500, 'ERROR', error)
+                res.status(500).json(errorObj).end()
                 return;
             }
         }
@@ -101,18 +106,14 @@ userRouter.put('/:id', auth, async (req, res) => {
 
         let ifNoParams = Object.values(bodyParams).every(param => param === undefined)
         if(ifNoParams){
-            res
-            .status(400)
-            .json(`there is been an error receiving the params. the params expected are some of these: id, username, name, email, password, isDeleted.`)
-            .end()
+            const errorObj = new Error('there is been an error receiving the params. the params expected are some of these: id, username, name, email, password, isDeleted.', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end()
             return
         }
         const thisUser =  await User.findByPk(id)
         if(thisUser === null){
-            res
-            .status(404) // changee
-            .json(`User not found`)
-            .end()
+            const errorObj = new Error('User not found', 404, 'ERROR', null)
+            res.status(404).json(errorObj).end()
             return
         }
         await thisUser.update(bodyParams, {
@@ -122,24 +123,25 @@ userRouter.put('/:id', auth, async (req, res) => {
         })
         .then(rowsUpdated => {
             if(rowsUpdated <= 0){
+                const errorObj = new Error('error updating, there have no rows been updated', 500, 'ERROR', null)
                 res
                 .status(500)
-                .json(`error updating`)
+                .json(errorObj)
                 .end()
                 return
             } else{
                 res
                 .status(201)
-                .json(`User updated`)
                 .end()
                 return;
             }
         })
     } catch(error){
         console.log(error);
+        const errorObj = new Error('internal server error', 500, 'ERROR', error)
         res
         .status(500)
-        .json(error.message)
+        .json(errorObj)
         .end()
     }
 })
@@ -150,6 +152,7 @@ userRouter.delete('/:id', auth, async (req, res) => {
     await User.findByPk(id)
     .then(user => {
         if(user === null){
+            const errorObj = new Error('User not found', 404, 'ERROR', null)
             res.status(404).json({error: 'User not found'}).end()
             return;
         }
@@ -159,7 +162,9 @@ userRouter.delete('/:id', auth, async (req, res) => {
         await User.update({deletedAt: new Date(), isDeleted: true}, {where: {id : id}})
         .then(rowsDeleted => {
             if(rowsDeleted <= 0){
-                res.status(500).json({error: 'internal server error'}).end()
+                // message, code, status, data
+                const errorObj = new Error('internal server error', 500, 'ERROR', null)
+                res.status(500).json(errorObj).end()
                 return;
             } else{
                 res.status(201).json({message: 'User deleted'}).end()
@@ -167,7 +172,10 @@ userRouter.delete('/:id', auth, async (req, res) => {
         })
     } catch(error){
         console.log(error);
-        res.status(500).json({error: 'internal server error'}).end();
+
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 500, 'ERROR', error)
+        res.status(500).json(errorObj).end();
     }
 
 })

@@ -6,19 +6,29 @@ const { Book, Library } = require('../models')
 
 const passport = require('passport')
 const auth = passport.authenticate('jwt', { session: false })
+
+// error handling
+const { Error } = require('../utils')
+
+
 // GET
 bookRouter.get('/', async (req, res) => {
     try{
         await Book.findAll()
         .then(books => {
-            res
-            .status(200)
-            .json(books)
-            .end()
+            if(books.length === 0){
+                // message, code, status, data
+                const errorObj = new Error('there are not books here yet, try posting some', 418, 'ERROR', null)
+                res.status(418).json(errorObj).end()
+                return;
+            } else {
+                res.status(200).json(books).end()
+            }
         })
     } catch (error){
-        console.log(error);
-        res.status(500).end();
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 418, 'ERROR', error)
+        res.status(418).json(errorObj).end()
     }
 })
 // by id
@@ -28,16 +38,18 @@ bookRouter.get('/:id', async (req, res) => {
         await Book.findByPk(id)
         .then(book => {
             if(book === null){
-                res
-                .status(404)
-                .json('Book not found')
-                .end()
-            } 
-            res.status(200).json(book).end()
+                // message, code, status, data
+                const errorObj = new Error('book not found', 404, 'ERROR', null)
+                res.status(404).json(errorObj).end()
+                return;
+            } else{
+                res.status(200).json(book).end()
+            }
         })
     } catch(error){
-        console.log(error);
-        res.status(500).end()
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 418, 'ERROR', error)
+        res.status(418).json(errorObj).end()
     }
 })
 
@@ -58,23 +70,25 @@ bookRouter.post('/', auth, async (req, res) => {
             }
         })
         if(!libraryExist){
-            res.status(404).json(`the library with the id ${LibraryId} doesnt exist`).end() // changee
-            return
+            // message, code, status, data
+            const errorObj = new Error(`the library with the id ${LibraryId} doesnt exist, try linking it with an existing library or to set it to null.`, 404, 'ERROR', null)
+            res.status(404).json(errorObj).end()
         }
     }
 
     // we verify if we have recieved all params (library id can be null or undefined, its not obligatory)
     if(!isbn || !title || !author || !year){
-        res
-        .status(400)
-        .json({error: `there are missing params in your request. `}, {params_expected: `isbn<strying>, title<string>, author<string>, year<int>`})
-        .end()
+        // message, code, status, data
+        const errorObj = new Error('there are missing params in your request. ', 400, 'ERROR', null)
+        res.status(400).json(errorObj).end()
         return;
     }
     // we check the data types
     if(typeof isbn !== 'number' || typeof title !== 'string' || typeof author !== 'string' || typeof year !== 'number'){
         console.log({idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year});
-        res.status(400).json({params_expected: {isbn: "number", title: "string", author: "string", year: "number"}, params_received: {idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year}})
+        // message, code, status, data
+        const errorObj = new Error(`the params recieved are not the correct data types. Params_expected: isbn: "number", title: "string", author: "string", year: "number", params_received: idbn: typeof isbn, title: typeof title, author: typeof author, year: typeof year`, 400, 'ERROR', null)
+        res.status(400).json(errorObj).end()
         return
     }
 
@@ -85,33 +99,22 @@ bookRouter.post('/', auth, async (req, res) => {
         try{
             await newBook.validate()    
         } catch(error){
-            console.log(error);
-            res.status(400).json({error: 'error while validating the data', error_data: error.errors}).end()
-            return;
+            // message, code, status, data
+            const errorObj = new Error('error while validating the data', 400, 'ERROR', error)
+            res.status(400).json(errorObj).end()
         }
-        console.log(LibraryId);
         // if the json contains libraryId null
         if(LibraryId === null){
             // we save it
             try{
                 await newBook.save()
             } catch(error){
-                if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
-                    res.status(400).json(error)
-                    return
-                } else{
-                    console.log(error);
-                    res.status(500).json({error: 'internal server error'}).end()
-                    return;
-                }
+                const errorObj = new Error('error while saving the data', 400, 'ERROR', error)
+                res.status(400).json(errorObj).end()
+                return
             }
 
             const newBookFromDb = await Book.findByPk(newBook.id)
-            // const newBookFromDb = await Book.findOne({where: {
-            //     isbn: isbn
-            // }
-            // })
-            console.log(newBookFromDb);
             res.status(201).json(newBookFromDb).end()
             return;
         } else {
@@ -132,10 +135,14 @@ bookRouter.post('/', auth, async (req, res) => {
                     await newBook.save()
                 } catch(error){
                     if(error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError'){
-                        res.status(400).json(error.errors).end()
+                        // message, code, status, data
+                        const errorObj = new Error('error while saving the data', 400, 'ERROR', error)
+                        res.status(400).json(errorObj).end()
                         return
                     } else {
-                        console.log(error);
+                        // message, code, status, data
+                        const errorObj = new Error('error while saving the data', 400, 'ERROR', error)
+                        res.status(400).json(errorObj).end()
                         return
                     }
                 }
@@ -146,16 +153,18 @@ bookRouter.post('/', auth, async (req, res) => {
     
                 res.status(201).json(newBookFromDb).end()
                 return
-            } else{
-                throw new Error({message: 'Library doesnt exist'}) // changee
+            } else {
+                // message, code, status, data
+                const errorObj = new Error(`the library with the id ${LibraryId} doesnt exist`, 404, 'ERROR', null)
+                res.status(404).json(errorObj).end()
+                return;
             }
         }
     } catch (err){
-        console.log(err);
-        res
-        .status(500) // changeee
-        .json(err.errors.map(err => err.message))
-        .end()
+        // message, code, status, data
+        const errorObj = new Error('error while saving the data', 400, 'ERROR', err)
+        res.status(400).json(errorObj).end()
+        return
     }
 })
 
@@ -167,38 +176,34 @@ bookRouter.put('/:id', auth, async (req, res) => {
         const params = { isbn, title, author, year };
     
         if(params.length <= 0 || !id){
-            res
-            .status(400)
-            .json(`params expected your params = ${JSON.stringify(params)}`)
-            .end()
+            // message, code, status, data
+            const errorObj = new Error('there are missing params in your request. ', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end()
             return
         }
     
         await Book.findByPk(id)
         .then(async book => {
             if(!book){
-                res
-                .status(404)
-                .json('Book not found')
-                .end()
+                // message, code, status, data
+                const errorObj = new Error('book not found', 404, 'ERROR', null)
+                res.status(404).json(errorObj).end()
                 return;
             }
             try{
                 await book.update(params)
-                res
-                .status(201)
-                .json(book)
-                .end()
+                res.status(201).json(book).end()
             } catch (err){
-                res
-                .status(500)
-                .json(err.message)
-                .end()
+                // message, code, status, data
+                const errorObj = new Error('error while updating the book', 400, 'ERROR', err)
+                res.status(400).json(errorObj).end()
+                return;
             }
         })
     } catch (error){
-        console.log(error);
-        res.status(500).end()
+        // message, code, status, data
+        const errorObj = new Error('internal server error', 418, 'ERROR', error)
+        res.status(500).json(errorObj).end()
     }
 })
 
@@ -210,26 +215,21 @@ bookRouter.delete('/:id', auth, async (req, res) => {
     await Book.findByPk(id)
     .then(async book => {
         if(!book){
-            res
-            .status(404)
-            .json('Book not found')
-            .end()
+            // message, code, status, data
+            const errorObj = new Error('book not found', 404, 'ERROR', null)
+            res.status(404).json(errorObj).end()
             return;
         }
         // then if it exist, we delete it.
         await book.update({deletedAt: new Date(), isDeleted: true})
         .then( numberOfDestroyedRows => {
             if(numberOfDestroyedRows <= 0 ){
-                res
-                .status(500)
-                .json('error updating')
-                .end()
+                // message, code, status, data
+                const errorObj = new Error('error while deleting the book', 400, 'ERROR', null)
+                res.status(400).json(errorObj).end
                 return;
             } else{
-                res
-                .status(201)
-                .json('Book deleted')
-                .end()
+                res.status(201).end()
             }
         })
     })
