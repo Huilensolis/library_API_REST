@@ -68,34 +68,33 @@ The API provides the following actions for each entity:
 
 ## Developing Experience
 
-Before building this project i had no experience building aplications with Node js, Express, Sequelize or either Passport-jwt, in fact, i hadn't even known how a backend really worked. After this project i feel with a little more confidence to build a project in the Backend and Frontend both.
+Before starting this project, I had no prior experience building applications with Node.js, Express, Sequelize, or Passport-JWT. In fact, I didn't have a deep understanding of how backend development worked. However, after completing this project, I gained confidence and knowledge in both backend and frontend development.
 
-As i didnt know anything from before, i supported myself from the Sequelize docuemntation, where i guided myself from 0 to 100.
-Without forgeting about the guides the bootcamp's mentors have provided, obiously. Something I am new at and I have really liekd to learn, is to build projects in modules, that's soemthing i didntk heared before in the classes they teached us to build by modules from the beggining, so its something i aprecciate. So this project is build by modules. 
+To kickstart my learning process, I referred to the Sequelize documentation, which provided comprehensive guidance from the basics to advanced concepts. Of course, I also relied on the guidance and support from the mentors in the bootcamp, which proved invaluable. One aspect that stood out to me was the concept of building projects in modules. This was something new to me, and I found it to be an effective and organized approach that I appreciate. Consequently, this project is structured using modules.
 
-I divided the project in different stages:
-### - Frist stage: Database, models and routes.
-1. Initialize the database.
-2. Create the models for Library, Book and User.
-3. Create the routes to CRUD the 3 already mentioned models.
+I divided the project into different stages to ensure a structured and systematic development approach:
 
-- i initializated the database: I save the configuration in a folder "db". where i initialize the database, saving the data into a "db" file inside the same folder and i determine the dialect to sqlite3.
-- I create the models: I save all the models in the "models" folder, where i declare all their properties and data validations.
-- I create the routes to CRUD the models: I create and save the routes in the "routes folder".
+### First Stage: Database, Models, and Routes
+1. Database Initialization:
+- I initialized the database and saved the configuration in the "db" folder. The data is stored in a "db" file within the same folder, and I chose the SQLite3 dialect.
+2. Model Creation:
+- I created the models for Library, Book, and User, saving them in the "models" folder. In these models, I defined the properties and data validations for each entity.
+3. Routes for CRUD Operations:
+- I created and saved the routes in the "routes" folder to handle the CRUD operations for the aforementioned models.
 
-### - Second stage: Log In route, Pasport-jwt Strategy and Auth middleware
-1. Log In route
-2. Define a Passport-jwt Strategy
-3. Create a middleware uses the Passport-Jwt Strategy
+### Second Stage: Log In Route, Passport-JWT Strategy, and Auth Middleware
+1. Log In Route:
+- I implemented a log-in route that verifies the existence of the user and checks if the password matches. Upon successful authentication, the route responds with a signed token.
+2. Passport-JWT Strategy:
+- I defined a Passport-JWT strategy to verify the user's existence and validate the password for a second time.
+3. Auth Middleware:
+- I created a middleware that utilizes the Passport-JWT strategy. This middleware is responsible for authenticating requests and stopping the execution chain if authentication fails. It is applied to all actions in the CRUD operations that require authentication and an admin role.
 
-- I create the Log In route: when a post req is received, it verifies that the user exist and the passpord matches, while it ends the req with a signed token as a response
-- I define the Passport-jwt Strategy, where i verify the user exist and the password matches for second time.
-- Create a middleware which uses the before defined passport-jwt Srategy and stops the middlewares execution chain.
-- Assing that middleware to every action in the crud which requires authentication and admin role.
+After completing the project, I focused on code refinement. I ensured that the appropriate HTTP status codes were set for each response. Additionally, I created (in the "utils" folder) an errorHandler class to send responses in a more readable format, enhancing the overall response structure.
 
-When i finished the project, i decided to polish the code, setting the adecuatetd code status for every response. And at the same time creating a errorHandler, which is a class for sending responses in a more legible format, so I implemented the errorHandler to the response json in the errors cases.
+During the development process, I realized that a significant amount of code was dedicated to verifying data types and request bodies. To streamline this process, I intended to implement the Express Validator module. However, at the time of writing this, the Node module is still in progress, and I need to proceed with the bootcamp schedule to learn Angular.
 
-I realized there is a lot of code which is just verifying the data types and request body, so I was willing to implement Express valdiator into my aplication, but now (when i write this), the node module has finsihed and I must continue with the bootcamp shedule to learn Angular next.
+Overall, this project provided me with valuable hands-on experience in building a RESTful API using popular frameworks and libraries. It helped me gain confidence in backend development and taught me essential concepts such as modularization, authentication, and error handling.
 
 ## API Documentation
 
