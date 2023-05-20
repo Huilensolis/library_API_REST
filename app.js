@@ -27,13 +27,18 @@ const { User } =  require('./src/models')
 app.use(consoleLoggingMIDWW)
 app.use(express.json());
 
-// routes
+// CRUD routes
 app.use('/library', libraryRouter);
 app.use('/book', bookRouter);
 app.use('/user', userRouter);
 
-// get token api:
+// get token api routes
 app.use('/login', logInRouter);
+
+// i'm a teapot
+app.use('/coffe-break',(req, res) => {
+    res.status(418).json({error: 'The server refuses the attempt to brew coffee with a teapot.'}).end();
+})
 
 //initializateDB
 async function initializateDB(){
