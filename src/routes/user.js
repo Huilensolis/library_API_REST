@@ -60,7 +60,7 @@ userRouter.post('/', auth, async (req, res) => {
 
         try {
             await newUser.save()
-            const newUserFromDb = User.findByPk(newUser.id, {attributes: {exclude: ['password']}})
+            const newUserFromDb = await User.findByPk(newUser.id, {attributes: {exclude: ['password']}})
 
             res
             .status(201)

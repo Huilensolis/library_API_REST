@@ -12,10 +12,12 @@ logInRouter.post('/', async (req, res) => {
     if(!username || !password) {
         res.status(400).json({ message: 'Please provide username and password' })
     }
-    if(username !== 'String' || password !== 'String') {
+    console.log({typeofPassword: typeof password, typeofUsername: typeof username});
+    if(typeof username !== 'string' || typeof password !== 'string') {
         res.status(400).json({ message: 'Please provide username and password as a string' })
+        return
     }
-    
+
     const findUser = await User.findOne(
         {
             where: {
@@ -33,7 +35,7 @@ logInRouter.post('/', async (req, res) => {
         return;
     }
     const token = jwt.sign({username, password}, secret)
-    res.json({ token }).status(200).end()
+    res.json({ token }).status(201).end()
 })
 
 module.exports = { logInRouter }

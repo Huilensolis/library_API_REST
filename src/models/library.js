@@ -22,6 +22,21 @@ const Library = db.define('Library', {
         allowNull: false,
         unique: true,
     },
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        validator: {
+            isBoolean: true,
+        }
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+        validator: {
+            isDate: true,
+        }
+    }
 });
 
 module.exports =  { Library };

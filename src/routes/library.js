@@ -5,7 +5,8 @@ const libraryRouter = express.Router();
 const { Library } = require('../models') 
 const { Book } = require('../models');
 
-const passport = require('passport')
+const passport = require('passport');
+const { json } = require('sequelize');
 const auth = passport.authenticate('jwt', { session: false })
 // GET
 // all
@@ -215,7 +216,7 @@ libraryRouter.put('/:id', auth, async (req, res) => {
         try {
             await findLibrary.update({ name, location, landline })
 
-            res.status(200).end()
+            res.status(201).end()
         } catch{
             res.status(400).json({err: 'internal server error'}).end()
         }
@@ -226,14 +227,6 @@ libraryRouter.put('/:id', auth, async (req, res) => {
 libraryRouter.delete('/:id', auth, async (req, res) => {
     let { id } = req.params;
 
-    // we verify if we have the param id
-    if(!id){
-        res
-        .status(400)
-        .json({err: 'missing parameter {id}'})
-        .end()
-        return;
-    }
     id = parseInt(id);
 
     // we verify if the library exist:
@@ -255,24 +248,27 @@ libraryRouter.delete('/:id', auth, async (req, res) => {
 
     // we delete a specific one
     try{
-        await Library.destroy({
+        await Library.update({ 
+            deleted: true, deletedAt: new Date() 
+        }, 
+        {
             where: {
-                id: id,
+                id: id
             }
-        }).then(destroyedRows => {
-            if(destroyedRows === 0){
-                console.log('database has faild to destroy the library');
-                res.status(500).end()
-            } else{
+        })
+        .then(updatedRows => {
+            if(updatedRows === 0 || updatedRows === null){
                 res
-                .status(200)
-                .json({message: `the library with id ${id} has been deleted`})
+                .status(404)
+                .json({err: `internal internal server error`})
                 .end();
+            } else {
+                res.status(201).end()
             }
         })
     } catch (err){
-        console.log(error);
-        res.status(500).end()
+        console.log(err);
+        res.status(500).json({error: err}).end()
     }
 })
 

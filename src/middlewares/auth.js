@@ -18,7 +18,7 @@ const passportJwt = require('passport-jwt');
 const JWTStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
-const secret = 'xywvn 123 ./-? im-a-secret-sign';//process.env.SECRET;
+const secret = process.env.SECRET;//process.env.SECRET;
 
 passport.use(new JWTStrategy({jwtFromRequest:  ExtractJwt.fromAuthHeaderAsBearerToken(), secretOrKey: secret}, async (jwtPayload, done) => {
 
