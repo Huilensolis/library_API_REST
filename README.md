@@ -273,7 +273,7 @@ Get All Users
 - Request Body:
   - name: (string) The name of the library.
   - location: (string) The location of the library.
-  - phone: (string) The phone number of the library.
+  - landline: (string) The phone number of the library.
 - Example Request:
 ```
 {
@@ -290,13 +290,13 @@ Get All Users
 - Request Body:
   - name: (string) The updated name of the library.
   - location: (string) The updated location of the library.
-  - phone: (string) The updated phone number of the library.
+  - landline: (string) The updated phone number of the library.
 - Example Request:
 ```
 {
   "name": "Updated Library",
   "location": "Updated Location",
-  "phone": "9999999999"
+  "landline": "9999999999"
 }
 ```
 
