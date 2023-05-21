@@ -10,7 +10,6 @@
 
 
 ## Table of Contents
-// here we will use icons to redirect.
 ### 1. [Project Goal](#project-goal)
 ### 2. [Developing Experience](#developing-experience)
 ### 3. [API Documentation](#api-documentation)
