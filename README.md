@@ -86,7 +86,7 @@ I divided the project into different stages to ensure a structured and systemati
 1. Database Initialization:
 - I initialized the database and saved the configuration in the "db" folder. The data is stored in a "db" file within the same folder, and I chose the SQLite3 dialect.
 2. Model Creation:
-- I created the models for Library, Book, and User, saving them in the "models" folder. In these models, I defined the properties and data validations for each entity.
+- I created the models for Library, Book, and User, saving them in the "models" folder. In these models, I defined the properties and data validations for each entity. Also, i encrypt the user password before saving it into the database.
 3. Routes for CRUD Operations:
 - I created and saved the routes in the "routes" folder to handle the CRUD operations for the aforementioned models.
 
