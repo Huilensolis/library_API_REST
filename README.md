@@ -318,3 +318,7 @@ Get All Users
 - Description: Deletes a library.
 - Example Request:
   - DELETE /library/1
+
+
+
+<p align="center">Created with ❤️ by <a href="https://github.com/Huilensolis">Huilensolis</a></p>
