@@ -17,7 +17,7 @@ bookRouter.get('/', async (req, res) => {
         .then(books => {
             if(books.length === 0){
                 // message, code, status, data
-                const errorObj = new Error('there are not books here yet, try posting some', 418, 'ERROR', null)
+                const errorObj = new Error('there are not books here yet, try posting some. I will wait for you', 418, 'ERROR', null)
                 res.status(418).json(errorObj).end()
                 return;
             } else {
@@ -70,7 +70,7 @@ bookRouter.post('/', auth, async (req, res) => {
         })
         if(!libraryExist){
             // message, code, status, data
-            const errorObj = new Error(`the library with the id ${LibraryId} doesnt exist, try linking it with an existing library or to set it to null.`, 404, 'ERROR', null)
+            const errorObj = new Error(`the library with the id ${LibraryId} doesnt exist, try linking it to an existing library or to set it to null.`, 404, 'ERROR', null)
             res.status(404).json(errorObj).end()
         }
     }
@@ -101,6 +101,7 @@ bookRouter.post('/', auth, async (req, res) => {
             // message, code, status, data
             const errorObj = new Error('error while validating the data', 400, 'ERROR', error)
             res.status(400).json(errorObj).end()
+            return
         }
         // if the json contains libraryId null
         if(LibraryId === null){
@@ -173,8 +174,12 @@ bookRouter.put('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const { isbn, title, author, year } = req.body;
         const params = { isbn, title, author, year };
-    
-        if(params.length <= 0){
+
+        const paramsValues = Object.values(params)
+        const paramsAreUndefinded = paramsValues.every(param => param === undefined)
+        console.log(paramsValues);
+        
+        if(paramsAreUndefinded){
             // message, code, status, data
             const errorObj = new Error('there are missing params in your request. ', 400, 'ERROR', null)
             res.status(400).json(errorObj).end()

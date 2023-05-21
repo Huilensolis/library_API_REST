@@ -150,7 +150,15 @@ libraryRouter.put('/:id', auth, async (req, res) => {
     let { id } = req.params;
     const { name, location, landline } = req.body;
     const params = { name, location, landline };
+    const paramsValues = Object.values(params)
+    const paramsUndefined = paramsValues.every(param => param === undefined)
 
+    if(paramsUndefined){
+        // message, code, status, data
+        const errorObj = new Error('missing body parameters', 400, 'ERROR', null)
+        res.status(400).json(errorObj).end();
+        return
+    }
     // we check if all params are sent
     // mi idea es hacer algo como esto por cada parametro, pero no se ve nada practico ajajja
     if(name){
@@ -231,7 +239,7 @@ libraryRouter.delete('/:id', auth, async (req, res) => {
     // we delete a specific one
     try{
         await Library.update({ 
-            deleted: true, deletedAt: new Date() 
+            isDeleted: true, deletedAt: new Date() 
         }, 
         {
             where: {

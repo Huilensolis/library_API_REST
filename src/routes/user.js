@@ -57,6 +57,11 @@ userRouter.post('/', auth, async (req, res) => {
             res.status(400).json(errorObj).end()
             return
         }
+        if(typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string'){
+            const errorObj = new Error('the params must be strings', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end()
+            return
+        }
         const newUser = User.build({ username, name, email, password })
 
         try {
@@ -79,7 +84,7 @@ userRouter.post('/', auth, async (req, res) => {
             console.log(error);
 
             if (error.name === 'SequelizeUniqueConstraintError') {
-                const errorObj = new Error('the gmail must be unique and the name must be alpha', 400, 'ERROR', error) 
+                const errorObj = new Error('the email and the username must be unique', 400, 'ERROR', error) 
                 res.status(400).json(errorObj).end()
                 return;
             } else{
@@ -107,6 +112,13 @@ userRouter.put('/:id', auth, async (req, res) => {
         let ifNoParams = Object.values(bodyParams).every(param => param === undefined)
         if(ifNoParams){
             const errorObj = new Error('there is been an error receiving the params. the params expected are some of these: id, username, name, email, password.', 400, 'ERROR', null)
+            res.status(400).json(errorObj).end()
+            return
+        }
+
+        ifParamsAreNotString = Object.values(bodyParams).some(param => typeof param !== 'string')
+        if(ifParamsAreNotString){
+            const errorObj = new Error('the params must be strings', 400, 'ERROR', null)
             res.status(400).json(errorObj).end()
             return
         }
