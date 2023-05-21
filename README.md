@@ -213,7 +213,7 @@ Get All Users
   - title: (string) The title of the book.
   - author: (string) The author of the book.
   - year: (string) The year of publication of the book.
-  - LibraryId: the asociated library of the book, it can be null.
+  - LibraryId: the asociated library of the book, it can be null. (INT)
 - Example Request:
 ```
 {
