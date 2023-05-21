@@ -102,6 +102,12 @@ For detailed information on how to use the API, refer to the API documentation, 
 
 The API aims to provide a comprehensive solution for managing libraries and books, incorporating authentication and following the CRUD principles for data operations.
 
+## Table of content:
+1.[Authentication](#authentication)
+2.[Users](#users)
+3.[Library](#libraries)
+4.[Book](#books)
+
 the content type will always be:
 ```
   Content-Type: application/json
