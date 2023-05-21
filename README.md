@@ -1,5 +1,14 @@
 # Library API REST
 
+
+<span style="margin-right: 50px;"><img src="https://img.shields.io/badge/-Node%20JS%20-green"></span>
+<span style="margin-right: 50px;"><img src="https://img.shields.io/badge/-Express%20-green"></span>
+<span style="margin-right: 50px;"><img src="https://img.shields.io/badge/ORM-Sequelize%20-blue"></span>
+<span style="margin-right: 50px;"><img src="https://img.shields.io/badge/Auth-Passport--Jwt%20-blueviolet"></span>
+<span style="margin-right: 50px;"><img src="https://img.shields.io/badge/-Bcrypt-informational"></span>
+
+
+
 ## Table of Contents
 // here we will use icons to redirect.
 ### 1. [Project Goal](#project-goal)
