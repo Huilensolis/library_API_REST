@@ -103,10 +103,22 @@ For detailed information on how to use the API, refer to the API documentation, 
 The API aims to provide a comprehensive solution for managing libraries and books, incorporating authentication and following the CRUD principles for data operations.
 
 ## Table of content:
-### 1.[Authentication](#authentication)
-### 2. [Users](#users)
-### 3. [Library](#libraries)
-### 4. [Book](#books)
+### 1 [Get started](#get-started)
+### 2.[Authentication](#authentication)
+### 3. [Users](#users)
+### 4. [Library](#libraries)
+### 5. [Book](#books)
+
+### get-started
+1. Clone the repository
+2. run:
+```
+npm i
+```
+3. intialize the server with:
+```
+npm start
+```
 
 the content type will always be:
 ```
