@@ -209,7 +209,7 @@ Get All Users
 - URL: /book
 - Description: Creates a new book.
 - Request Body:
-  - isbn: the unique identificator of the book.
+  - isbn: the unique identificator of the book. (INT)
   - title: (string) The title of the book.
   - author: (string) The author of the book.
   - year: (string) The year of publication of the book.
@@ -230,7 +230,7 @@ Get All Users
 - URL: /book/{id}
 - Description: Updates an existing book.
 - Request Body:
-  - isbn:  the unique identificator of the book.
+  - isbn:  the unique identificator of the book. (INT)
   - title: (string) The updated title of the book.
   - author: (string) The updated author of the book.
   - year: (string) The updated year of publication of the book.
