@@ -101,12 +101,12 @@ userRouter.post('/', auth, async (req, res) => {
 userRouter.put('/:id', auth, async (req, res) => {
     try{
         const { id } = req.params;
-        const { username, name, email, password, isDeleted } = req.body;
-        let bodyParams = { username, name, email, password, isDeleted };
+        const { username, name, email, password } = req.body;
+        let bodyParams = { username, name, email, password };
 
         let ifNoParams = Object.values(bodyParams).every(param => param === undefined)
         if(ifNoParams){
-            const errorObj = new Error('there is been an error receiving the params. the params expected are some of these: id, username, name, email, password, isDeleted.', 400, 'ERROR', null)
+            const errorObj = new Error('there is been an error receiving the params. the params expected are some of these: id, username, name, email, password.', 400, 'ERROR', null)
             res.status(400).json(errorObj).end()
             return
         }

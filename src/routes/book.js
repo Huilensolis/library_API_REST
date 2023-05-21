@@ -10,7 +10,6 @@ const auth = passport.authenticate('jwt', { session: false })
 // error handling
 const { Error } = require('../utils')
 
-
 // GET
 bookRouter.get('/', async (req, res) => {
     try{
@@ -175,7 +174,7 @@ bookRouter.put('/:id', auth, async (req, res) => {
         const { isbn, title, author, year } = req.body;
         const params = { isbn, title, author, year };
     
-        if(params.length <= 0 || !id){
+        if(params.length <= 0){
             // message, code, status, data
             const errorObj = new Error('there are missing params in your request. ', 400, 'ERROR', null)
             res.status(400).json(errorObj).end()
