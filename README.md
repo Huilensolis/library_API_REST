@@ -139,21 +139,21 @@ To do actions which require uthentication, and to create a user (because the api
 ### Users
 Get All Users
 - Method: GET
-- URL: /users
+- URL: /user
 - Description: Retrieves all users.
 - Example Request:
-  - GET /users
+  - GET /user
 
 #### Get User by ID
 - Method: GET
-- URL: /users/{id}
+- URL: /user/{id}
 - Description: Retrieves a specific user by ID.
 - Example Request:
   - GET /user/1
 
 #### Create User
 - Method: POST
-- URL: /users
+- URL: /user
 - Description: Creates a new user.
 - Request Body:
   - name: (string) The name of the user.
@@ -171,7 +171,7 @@ Get All Users
 
 #### Update User
 - Method: PUT
-- URL: /users/{id}
+- URL: /user/{id}
 - Description: Updates an existing user.
 - Request Body (you can update as many propieties as you want):
   - username: (string) the udpated username of the user
@@ -184,7 +184,7 @@ Get All Users
 
 #### Delete User
 - Method: DELETE
-- URL: /users/{id}
+- URL: /user/{id}
 - Description: Deletes a user.
 - Example Request:
   - DELETE /users/1
