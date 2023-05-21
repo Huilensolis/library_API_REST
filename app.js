@@ -12,10 +12,11 @@ const { db } = require('./src/db');
 const { libraryRouter } = require('./src/routes')
 const { bookRouter } = require('./src/routes')
 const { userRouter } = require('./src/routes')
+// auth
 const { logInRouter } = require('./src/routes')
+
 //middwares
 const { consoleLoggingMIDWW } = require('./src/middlewares');
-// here will be the auth
 
 // models
 const { Library } = require('./src/models/');
@@ -50,16 +51,21 @@ async function initializateDB(){
         Library.hasMany(Book);
         Book.belongsTo(Library)
         // snycing the Library & Book tables
-        await Library.sync({force: true});
+        await Library.sync();
         console.log('Library table synchronized');
         
-        await Book.sync({force: true});
+        await Book.sync();
         console.log('Book table synchronized');
         
-        await User.sync({force: true});
+        await User.sync();
         // we define the admin user here
-        let adminUser = await User.build({username: 'admin', name: null, email: 'myexampleofmygmail@gmail.com', password: 'admin'})
-        await adminUser.save()
+        const existAdmin = await User.findOne({where: {
+            username: 'admin'
+        }})
+        if(!existAdmin){
+            let adminUser = await User.build({username: 'admin', name: null, email: 'myexampleofmygmail@gmail.com', password: 'admin'})
+            await adminUser.save()
+        }
         console.log('User table synchronized');
         
     } catch(err) {
