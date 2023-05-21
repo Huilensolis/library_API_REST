@@ -217,7 +217,7 @@ Get All Users
 - Example Request:
 ```
 {
-  "isbn": 1235125
+  "isbn": 1235125,
   "title": "Book 3",
   "author": "Author 3",
   "year": 2024,
