@@ -9,7 +9,7 @@
 
 
 
-## Table of Contents
+## Table of Content
 ### 1. [Project Goal](#project-goal)
 ### 2. [Developing Experience](#developing-experience)
 ### 3. [API Documentation](#api-documentation)
